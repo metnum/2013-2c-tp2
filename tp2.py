@@ -185,7 +185,7 @@ m[eq(n, 'x'), f(2 * n + 2)] = -1
 
 # Fill jn.y: center upper.y equation
 # f(2 * n - 1) = 0
-m[eq(n, 'x'), f(2 * n - 1)] = 1
+m[eq(n, 'y'), f(2 * n - 1)] = 1
 
 # Fill j(j_max-2).x equation
 # f(l_max -5) = f(l_max - 1)
@@ -368,7 +368,7 @@ def lu( A ):
     return ( A, p )
 
 
-def solve( A, p, b ):
+def solve_lu( A, p, b ):
     """Solves Ax = b given an LU factored matrix A and permuation vector p
 
     USAGE:
@@ -450,7 +450,6 @@ def gauss(A, b):
 
     x = np.zeros(n)
     k = n-1
-    from ipdb import set_trace; set_trace()
     x[k] = b[k]/A[k,k]
     while k >= 0:
         x[k] = (b[k] - np.dot(A[k,k+1:],x[k+1:]))/A[k,k]
@@ -528,22 +527,21 @@ def check_matrix(m):
     for row in xrange(m.shape[0]):
         for column in xrange(m.shape[1]):
             if m[row, column] != 0.0:
-                print force_position(column) + " in " + (
-                    "horizontal" if row % 2 == 0 else "vertical") + " equation for vertex " +\
-                    str(row / 2)
-
+                print ("Vertex " + str(row / 2) + " " + ("horizontal" if row % 2 == 0 else "vertical") + ": " +
+                    force_position(column))
 
 #show_matrix(m[:, 0:np.shape(m)[1] - 1])
 
+show_matrix(m)
 dim_n = np.shape(m)[0]
 square = m[:, 0:dim_n]  # Take the last row out
-show_matrix(square)
-#B = m[:, n]  # Last row
-check_matrix(square)
-#fact, perm = lu(square)
-#solution = solve(fact, perm, B)
-#show_matrix(solution)
-# solutions = backward_sub(augmented)
+#show_matrix(square)
+B = m[:, n]  # Last row
+#check_matrix(square)
+# fact, perm = lu(square)
+# solution = solve_lu(fact, perm, B)
+# show_matrix(solution)
+resolved = gauss(square, B)
 
 
 # <codecell>
