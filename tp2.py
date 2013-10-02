@@ -16,8 +16,8 @@ from matplotlib.pyplot import imshow, show, xticks
 
 ### Input
 n = 6                # Number of bridge segments
-span = 6            # Length of the bridge
-h = 1                # Height
+span = 18            # Length of the bridge
+h = 2                # Height
 C = [1] * 6  # n - 1 weights in the lower joints
 
 ### Quantities
@@ -145,7 +145,7 @@ m[eq(0, 'y'), f(2)] = -y
 # Fill j1.x equation
 # f1 = f4
 m[eq(1, 'x'), f(1)] = 1
-m[eq(1, 'x'), f(4)] = 1
+m[eq(1, 'x'), f(4)] = -1
 
 # Fill j1.y equation
 # -c1 = f3
@@ -276,7 +276,6 @@ for k in range(n + 2, 2 * n - 3, 2):
 # side of the equations for the matrix
 
 # <codecell>
-
 
 def solve_problem(A):
     # Use the scipy.linalg solver
@@ -489,6 +488,14 @@ def force_position(pos):
         return "V1"
 
 
+def format_result(result):
+    """
+    Given a result column vector, show the values assigned
+    """
+    for pos in range(0, result.shape[0]):
+        print force_position(pos) + ": " + str(result[pos, 0])
+
+
 def check_matrix(m):
     # Horizontal and vertical link columns should add to 2
     # Diagonal links should add to 2/sqrt(2)
@@ -532,16 +539,18 @@ def check_matrix(m):
 
 #show_matrix(m[:, 0:np.shape(m)[1] - 1])
 
-show_matrix(m)
-dim_n = np.shape(m)[0]
-square = m[:, 0:dim_n]  # Take the last row out
+#show_matrix(m)
+#dim_n = np.shape(m)[0]
+#square = m[:, 0:dim_n]  # Take the last row out
+#from ipdb import set_trace; set_trace()
 #show_matrix(square)
-B = m[:, n]  # Last row
+#B = m[:, n]  # Last row
 #check_matrix(square)
 # fact, perm = lu(square)
 # solution = solve_lu(fact, perm, B)
 # show_matrix(solution)
-resolved = gauss(square, B)
+#resolved = gauss(square, B)
+format_result(solve_problem(m))
 
 
 # <codecell>
