@@ -14,18 +14,6 @@ from matplotlib.pyplot import imshow, show, xticks
 
 # <codecell>
 
-### Input
-n = 6                # Number of bridge segments
-span = 18            # Length of the bridge
-h = 2                # Height
-C = [1] * 6  # n - 1 weights in the lower joints
-
-### Quantities
-j_count = 2 * n       # Number of joints
-j_max = j_count - 1   # Last joint index
-l_count = 4 * n - 3   # Number of links
-l_max = l_count    # Last link index
-
 # <markdowncell>
 
 # Special vertexes
@@ -98,24 +86,11 @@ l_max = l_count    # Last link index
 
 # Create the matrix
 # We have 4n equations, and an extra column for the C weights
-m = zeros((4 * n, 4 * n + 1))
 
 # TODO: special handling of small cases (n=2)
 
 # The matrix colums are going to be:
 # h0 v0 f1 f2 ... fn v1
-
-h0_index = 0
-v0_index = 1
-v1_index = 4 * n - 1
-c_index = 4 * n  # amount of equations + 1
-
-link_x = 1.0 * span / n
-link_y = 1.0 * h
-link_diag = (link_x ** 2 + link_y ** 2) ** 0.5
-x = link_y / link_diag
-y = link_x / link_diag
-
 
 # The matrix rows are going to be:
 # j0.x j0.y j1.x j1y .. jn.x jn.y
@@ -126,144 +101,165 @@ def eq(joint, axis):
     elif axis == 'y':
         return 2 * joint + 1
 
-
 def f(force):
     return force + 1
 
 
-# Fill j0.x equation
-# h0 = f1 + f2.x
-m[eq(0, 'x'), h0_index] = 1
-m[eq(0, 'x'), f(1)] = -1
-m[eq(0, 'x'), f(2)] = -x
+def build_matrix(n, span, h, C):
+    h0_index = 0
+    v0_index = 1
+    v1_index = 4 * n - 1
+    c_index = 4 * n  # amount of equations + 1
+    m = zeros((4 * n, 4 * n + 1))
 
-# Fill j0.y equation
-# v0 = f2.y
-m[eq(0, 'y'), v0_index] = 1
-m[eq(0, 'y'), f(2)] = -y
+    link_x = 1.0 * span / n
+    link_y = 1.0 * h
+    link_diag = (link_x ** 2 + link_y ** 2) ** 0.5
+    x = link_y / link_diag
+    y = link_x / link_diag
 
-# Fill j1.x equation
-# f1 = f4
-m[eq(1, 'x'), f(1)] = 1
-m[eq(1, 'x'), f(4)] = -1
 
-# Fill j1.y equation
-# -c1 = f3
-m[eq(1, 'y'), f(3)] = 1
-m[eq(1, 'y'), c_index] = C[0]
+    ### Quantities
+    j_count = 2 * n       # Number of joints
+    j_max = j_count - 1   # Last joint index
+    l_count = 4 * n - 3   # Number of links
+    l_max = l_count    # Last link index
 
-# Fill j2.x equation
-# f2.x = f5.x + f6
-m[eq(2, 'x'), f(2)] = x
-m[eq(2, 'x'), f(5)] = -x
-m[eq(2, 'x'), f(6)] = -1
+    # Fill j0.x equation
+    # h0 = f1 + f2.x
+    m[eq(0, 'x'), h0_index] = 1
+    m[eq(0, 'x'), f(1)] = -1
+    m[eq(0, 'x'), f(2)] = -x
 
-# Fill j2.y equation
-# f2.y + f3 + f5.y = 0
-m[eq(2, 'y'), f(2)] = y
-m[eq(2, 'y'), f(3)] = 1
-m[eq(2, 'y'), f(5)] = y
+    # Fill j0.y equation
+    # v0 = f2.y
+    m[eq(0, 'y'), v0_index] = 1
+    m[eq(0, 'y'), f(2)] = -y
 
-# Fill j(n - 1).x: center lower.x equation
-# f(2 * n - 4) + f(2 * n - 3).x = f(2 * n) + f(2 * n + 1)
-m[eq(n - 1, 'x'), f(2 * n - 4)] = 1
-m[eq(n - 1, 'x'), f(2 * n - 3)] = x
-m[eq(n - 1, 'x'), f(2 * n)] = -1
-m[eq(n - 1, 'x'), f(2 * n + 1)] = -x
+    # Fill j1.x equation
+    # f1 = f4
+    m[eq(1, 'x'), f(1)] = 1
+    m[eq(1, 'x'), f(4)] = -1
 
-# Fill j(n - 1).y: center lower.y equation
-# -c(n/2) = f(2 * n - 3).y + f(2 * n - 1) +  f(2 * n + 1).y
-m[eq(n - 1, 'y'), c_index] = C[n / 2 - 1]
-m[eq(n - 1, 'y'), f(2 * n - 3)] = y
-m[eq(n - 1, 'y'), f(2 * n - 1)] = 1
-m[eq(n - 1, 'y'), f(2 * n + 1)] = y
+    # Fill j1.y equation
+    # -c1 = f3
+    m[eq(1, 'y'), f(3)] = 1
+    m[eq(1, 'y'), c_index] = C[0]
 
-# Fill jn.x: center upper.x equation
-# f(2 * n - 2) = f(2 * n + 2)
-m[eq(n, 'x'), f(2 * n - 2)] = 1
-m[eq(n, 'x'), f(2 * n + 2)] = -1
+    # Fill j2.x equation
+    # f2.x = f5.x + f6
+    m[eq(2, 'x'), f(2)] = x
+    m[eq(2, 'x'), f(5)] = -x
+    m[eq(2, 'x'), f(6)] = -1
 
-# Fill jn.y: center upper.y equation
-# f(2 * n - 1) = 0
-m[eq(n, 'y'), f(2 * n - 1)] = 1
+    # Fill j2.y equation
+    # f2.y + f3 + f5.y = 0
+    m[eq(2, 'y'), f(2)] = y
+    m[eq(2, 'y'), f(3)] = 1
+    m[eq(2, 'y'), f(5)] = y
 
-# Fill j(j_max-2).x equation
-# f(l_max -5) = f(l_max - 1)
-m[eq(j_max - 2, 'x'), f(l_max - 5)] = 1
-m[eq(j_max - 2, 'x'), f(l_max - 1)] = -1
+    # Fill j(n - 1).x: center lower.x equation
+    # f(2 * n - 4) + f(2 * n - 3).x = f(2 * n) + f(2 * n + 1)
+    m[eq(n - 1, 'x'), f(2 * n - 4)] = 1
+    m[eq(n - 1, 'x'), f(2 * n - 3)] = x
+    m[eq(n - 1, 'x'), f(2 * n)] = -1
+    m[eq(n - 1, 'x'), f(2 * n + 1)] = -x
 
-# Fill j(j_max-2).y equation
-# -c(n-2) = f(l_max - 2)
-m[eq(j_max - 2, 'y'), f(l_max - 2)] = 1
-m[eq(j_max - 2, 'y'), c_index] = C[n - 2]
+    # Fill j(n - 1).y: center lower.y equation
+    # -c(n/2) = f(2 * n - 3).y + f(2 * n - 1) +  f(2 * n + 1).y
+    m[eq(n - 1, 'y'), c_index] = C[n / 2 - 1]
+    m[eq(n - 1, 'y'), f(2 * n - 3)] = y
+    m[eq(n - 1, 'y'), f(2 * n - 1)] = 1
+    m[eq(n - 1, 'y'), f(2 * n + 1)] = y
 
-# Fill j(j_max-1).x equation
-# f(l_max -3)+ f(l_max - 4).x = f(l_max).x
-m[eq(j_max - 1, 'x'), f(l_max - 3)] = 1
-m[eq(j_max - 1, 'x'), f(l_max - 4)] = x
-m[eq(j_max - 1, 'x'), f(l_max)] = -x
+    # Fill jn.x: center upper.x equation
+    # f(2 * n - 2) = f(2 * n + 2)
+    m[eq(n, 'x'), f(2 * n - 2)] = 1
+    m[eq(n, 'x'), f(2 * n + 2)] = -1
 
-# Fill j(j_max-1).y equation
-# f(l_max - 4).y + f(l_max - 2) + f(l_max).y = 0
-m[eq(j_max - 1, 'y'), f(l_max - 4)] = y
-m[eq(j_max - 1, 'y'), f(l_max - 2)] = 1
-m[eq(j_max - 1, 'y'), f(l_max)] = y
+    # Fill jn.y: center upper.y equation
+    # f(2 * n - 1) = 0
+    m[eq(n, 'y'), f(2 * n - 1)] = 1
 
-# Fill j(j_max).x equation
-# f(l_max).x + f(l_max - 1) = 0
-m[eq(j_max, 'x'), f(l_max)] = x
-m[eq(j_max, 'x'), f(l_max - 1)] = 1
+    # Fill j(j_max-2).x equation
+    # f(l_max -5) = f(l_max - 1)
+    m[eq(j_max - 2, 'x'), f(l_max - 5)] = 1
+    m[eq(j_max - 2, 'x'), f(l_max - 1)] = -1
 
-# Fill j(j_max).y equation
-# v1 = f(l_max).y
-m[eq(j_max, 'y'), v1_index] = 1
-m[eq(j_max, 'y'), f(l_max)] = -y
+    # Fill j(j_max-2).y equation
+    # -c(n-2) = f(l_max - 2)
+    m[eq(j_max - 2, 'y'), f(l_max - 2)] = 1
+    m[eq(j_max - 2, 'y'), c_index] = C[n - 2]
 
-# Fill j(2k) - 1, 1 < k < n / 2
-for k in xrange(3, n - 1, 2):
-    # f(2k -2) + f(2k -1).x = f(2k + 2)
-    m[eq(k, 'x'), f(2 * k - 2)] = 1
-    m[eq(k, 'x'), f(2 * k - 1)] = x
-    m[eq(k, 'x'), f(2 * k + 2)] = -1
+    # Fill j(j_max-1).x equation
+    # f(l_max -3)+ f(l_max - 4).x = f(l_max).x
+    m[eq(j_max - 1, 'x'), f(l_max - 3)] = 1
+    m[eq(j_max - 1, 'x'), f(l_max - 4)] = x
+    m[eq(j_max - 1, 'x'), f(l_max)] = -x
 
-    # -c(k/2) = f(2k - 1).y + f(2k + 1)
-    m[eq(k, 'y'), c_index] = C[k / 2]
-    m[eq(k, 'y'), f(2 * k - 1)] = y
-    m[eq(k, 'y'), f(2 * k + 1)] = 1
+    # Fill j(j_max-1).y equation
+    # f(l_max - 4).y + f(l_max - 2) + f(l_max).y = 0
+    m[eq(j_max - 1, 'y'), f(l_max - 4)] = y
+    m[eq(j_max - 1, 'y'), f(l_max - 2)] = 1
+    m[eq(j_max - 1, 'y'), f(l_max)] = y
 
-# Fill j(2k)    , 1 < k < n / 2
-for k in xrange(4, n - 1, 2):
-    # f(2k - 2) = f(2k + 2) + f(2k + 1).x
-    m[eq(k, 'x'), f(2 * k - 2)] = -1
-    m[eq(k, 'x'), f(2 * k + 2)] = 1
-    m[eq(k, 'x'), f(2 * k + 1)] = x
+    # Fill j(j_max).x equation
+    # f(l_max).x + f(l_max - 1) = 0
+    m[eq(j_max, 'x'), f(l_max)] = x
+    m[eq(j_max, 'x'), f(l_max - 1)] = 1
 
-    # f(2k - 1) + f(2k + 1).y = 0
-    m[eq(k, 'y'), f(2 * k - 1)] = 1
-    m[eq(k, 'y'), f(2 * k + 1)] = y
+    # Fill j(j_max).y equation
+    # v1 = f(l_max).y
+    m[eq(j_max, 'y'), v1_index] = 1
+    m[eq(j_max, 'y'), f(l_max)] = -y
 
-# Fill j(2k) - 1, n / 2 + 1 < k < n - 1
-for k in range(n + 1, 2 * n - 3, 2):
-    # f(2k - 2) = f(2k + 2) + f(2k + 3).x
-    m[eq(k, 'x'), f(2 * k - 2)] = -1
-    m[eq(k, 'x'), f(2 * k + 2)] = 1
-    m[eq(k, 'x'), f(2 * k + 3)] = x
+    # Fill j(2k) - 1, 1 < k < n / 2
+    for k in xrange(3, n - 1, 2):
+        # f(2k -2) + f(2k -1).x = f(2k + 2)
+        m[eq(k, 'x'), f(2 * k - 2)] = 1
+        m[eq(k, 'x'), f(2 * k - 1)] = x
+        m[eq(k, 'x'), f(2 * k + 2)] = -1
 
-    # -c[k/2] = f(k * 2 + 1) + f(k * 2 + 3).y
-    m[eq(k, 'y'), c_index] = C[k / 2]
-    m[eq(k, 'y'), f(2 * k + 1)] = 1
-    m[eq(k, 'y'), f(2 * k + 3)] = y
+        # -c(k/2) = f(2k - 1).y + f(2k + 1)
+        m[eq(k, 'y'), c_index] = C[k / 2]
+        m[eq(k, 'y'), f(2 * k - 1)] = y
+        m[eq(k, 'y'), f(2 * k + 1)] = 1
 
-# Fill j(2k)    , n / 2 + 1 < k < n - 1
-for k in range(n + 2, 2 * n - 3, 2):
-    # f(2k -3).x + f(2k - 2) = f(2k + 2)
-    m[eq(k, 'x'), f(2 * k - 3)] = x
-    m[eq(k, 'x'), f(2 * k - 2)] = 1
-    m[eq(k, 'x'), f(2 * k + 2)] = -1
+    # Fill j(2k)    , 1 < k < n / 2
+    for k in xrange(4, n - 1, 2):
+        # f(2k - 2) = f(2k + 2) + f(2k + 1).x
+        m[eq(k, 'x'), f(2 * k - 2)] = -1
+        m[eq(k, 'x'), f(2 * k + 2)] = 1
+        m[eq(k, 'x'), f(2 * k + 1)] = x
 
-    # f(2k -3).y + f(2k -1) = 0
-    m[eq(k, 'y'), f(2 * k - 3)] = y
-    m[eq(k, 'y'), f(2 * k - 1)] = 1
+        # f(2k - 1) + f(2k + 1).y = 0
+        m[eq(k, 'y'), f(2 * k - 1)] = 1
+        m[eq(k, 'y'), f(2 * k + 1)] = y
+
+    # Fill j(2k) - 1, n / 2 + 1 < k < n - 1
+    for k in range(n + 1, 2 * n - 3, 2):
+        # f(2k - 2) = f(2k + 2) + f(2k + 3).x
+        m[eq(k, 'x'), f(2 * k - 2)] = -1
+        m[eq(k, 'x'), f(2 * k + 2)] = 1
+        m[eq(k, 'x'), f(2 * k + 3)] = x
+
+        # -c[k/2] = f(k * 2 + 1) + f(k * 2 + 3).y
+        m[eq(k, 'y'), c_index] = C[k / 2]
+        m[eq(k, 'y'), f(2 * k + 1)] = 1
+        m[eq(k, 'y'), f(2 * k + 3)] = y
+
+    # Fill j(2k)    , n / 2 + 1 < k < n - 1
+    for k in range(n + 2, 2 * n - 3, 2):
+        # f(2k -3).x + f(2k - 2) = f(2k + 2)
+        m[eq(k, 'x'), f(2 * k - 3)] = x
+        m[eq(k, 'x'), f(2 * k - 2)] = 1
+        m[eq(k, 'x'), f(2 * k + 2)] = -1
+
+        # f(2k -3).y + f(2k -1) = 0
+        m[eq(k, 'y'), f(2 * k - 3)] = y
+        m[eq(k, 'y'), f(2 * k - 1)] = 1
+
+    return m
 
 # <rawcell>
 
@@ -537,6 +533,11 @@ def check_matrix(m):
                 print ("Vertex " + str(row / 2) + " " + ("horizontal" if row % 2 == 0 else "vertical") + ": " +
                     force_position(column))
 
+
+def parse_input():
+    import sys
+    filename = sys.argv[1]
+    data = open(filename, 'r')
 #show_matrix(m[:, 0:np.shape(m)[1] - 1])
 
 #show_matrix(m)
