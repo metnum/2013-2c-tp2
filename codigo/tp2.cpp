@@ -36,12 +36,12 @@ double get_time()
 
 void dibujar_matriz(double * m, int n) {
     for (int i = 0; i < n; ++i) {
-        printf("fila %i.   ", i);
+        printf("fila %2i.   ", i);
         for (int j = 0; j < n; ++j) {
             if (j - i + p >= 0 && j - i <= q + p) {
-                printf("%02.0f  ", pos(m, i, j));
+                printf("%05.2f  ", pos(m, i, j));
             } else {
-                printf("00  ");
+                printf("00000  ");
             }
         }
         printf("%06.2f\n", posc(m, i));
@@ -125,17 +125,17 @@ void armar_matriz(double * m, int n, double h, double span, double * C) {
 
     // Fill j(n - 1).x: center lower.x equation
     // f(2 * n - 4) + f(2 * n - 3).x = f(2 * n) + f(2 * n + 1)
-    pos(m, eq(n - 1, "x"), f(2 * n - 4)) = 1;
-    pos(m, eq(n - 1, "x"), f(2 * n - 3)) = x;
-    pos(m, eq(n - 1, "x"), f(2 * n)) = -1;
-    pos(m, eq(n - 1, "x"), f(2 * n + 1)) = -x;
+    pos(m, eq((n - 1), "x"), f(2 * n - 4)) = 1;
+    pos(m, eq((n - 1), "x"), f(2 * n - 3)) = x;
+    pos(m, eq((n - 1), "x"), f(2 * n)) = -1;
+    pos(m, eq((n - 1), "x"), f(2 * n + 1)) = -x;
 
     // Fill j(n - 1).y: center lower.y equation
     // -c(n/2) = f(2 * n - 3).y + f(2 * n - 1) +  f(2 * n + 1).y
-    posc(m, eq(n - 1, "y")) = C[n / 2 - 1];
-    pos(m, eq(n - 1, "y"), f(2 * n - 3)) = y;
-    pos(m, eq(n - 1, "y"), f(2 * n - 1)) = 1;
-    pos(m, eq(n - 1, "y"), f(2 * n + 1)) = y;
+    posc(m, eq((n - 1), "y")) = C[n / 2 - 1];
+    pos(m, eq((n - 1), "y"), f(2 * n - 3)) = y;
+    pos(m, eq((n - 1), "y"), f(2 * n - 1)) = 1;
+    pos(m, eq((n - 1), "y"), f(2 * n + 1)) = y;
 
     // Fill jn.x: center upper.x equation
     // f(2 * n - 2) = f(2 * n + 2)
@@ -148,25 +148,25 @@ void armar_matriz(double * m, int n, double h, double span, double * C) {
 
     // Fill j(j_max-2).x equation
     // f(l_max -5) = f(l_max - 1)
-    pos(m, eq(j_max - 2, "x"), f(l_max - 5)) = 1;
-    pos(m, eq(j_max - 2, "x"), f(l_max - 1)) = -1;
+    pos(m, eq((j_max - 2), "x"), f(l_max - 5)) = 1;
+    pos(m, eq((j_max - 2), "x"), f(l_max - 1)) = -1;
 
     // Fill j(j_max-2).y equation
     // -c(n-2) = f(l_max - 2)
-    pos(m, eq(j_max - 2, "y"), f(l_max - 2)) = 1;
-    posc(m, eq(j_max - 2, "y")) = C[n - 2];
+    pos(m, eq((j_max - 2), "y"), f(l_max - 2)) = 1;
+    posc(m, eq((j_max - 2), "y")) = C[n - 2];
 
     // Fill j(j_max-1).x equation
     // f(l_max -3)+ f(l_max - 4).x = f(l_max).x
-    pos(m, eq(j_max - 1, "x"), f(l_max - 3)) = 1;
-    pos(m, eq(j_max - 1, "x"), f(l_max - 4)) = x;
-    pos(m, eq(j_max - 1, "x"), f(l_max)) = -x;
+    pos(m, eq((j_max - 1), "x"), f(l_max - 3)) = 1;
+    pos(m, eq((j_max - 1), "x"), f(l_max - 4)) = x;
+    pos(m, eq((j_max - 1), "x"), f(l_max)) = -x;
 
     // Fill j(j_max-1).y equation
     // f(l_max - 4).y + f(l_max - 2) + f(l_max).y = 0
-    pos(m, eq(j_max - 1, "y"), f(l_max - 4)) = y;
-    pos(m, eq(j_max - 1, "y"), f(l_max - 2)) = 1;
-    pos(m, eq(j_max - 1, "y"), f(l_max)) = y;
+    pos(m, eq((j_max - 1), "y"), f(l_max - 4)) = y;
+    pos(m, eq((j_max - 1), "y"), f(l_max - 2)) = 1;
+    pos(m, eq((j_max - 1), "y"), f(l_max)) = y;
 
     // Fill j(j_max).x equation
     // f(l_max).x + f(l_max - 1) = 0
@@ -259,6 +259,7 @@ int main (int argc, char * argv[]) {
     printf("span: %f, h: %f, n: %f\n", span, h, n);
 
     double * m = (double *) malloc(sizeof(double) * banda * 4 * n);  // 4n ecuaciones *  (banda + cargas Ci)
+    double * C = (double *) malloc(sizeof(double) * (n - 1));  // vector de cargas iniciales
     if (m == NULL){
         printf("ERROR: me quede sin memoria :( snif...\n");
         return 1;
@@ -290,11 +291,20 @@ int main (int argc, char * argv[]) {
     //     }
     // }
 
+    // Obtengo el vector de cargas
+    for (int i = 0; i < n - 1; ++i) {
+        C[i] = i + 1;
+        printf("%f ", C[i]);
+    }
+    printf("\n");
+
+    armar_matriz(m, n, h, span, C);
+
     dibujar_matriz(m, 4 * n);
     printf("\n");
     // permutar(m, 5, 7, 4 * n);
-    operacion(m, 11, 9, 1, 4 * n);
-    dibujar_matriz(m, 4 * n);
+    // operacion(m, 11, 9, 1, 4 * n);
+    // dibujar_matriz(m, 4 * n);
 
 
     // Empiezo a contar el tiempo
