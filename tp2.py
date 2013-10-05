@@ -160,6 +160,7 @@ def build_matrix(n, span, h, C):
 
     # Fill j(n - 1).x: center lower.x equation
     # f(2 * n - 4) + f(2 * n - 3).x = f(2 * n) + f(2 * n + 1)
+    from ipdb import set_trace; set_trace()
     m[eq(n - 1, 'x'), f(2 * n - 4)] = 1
     m[eq(n - 1, 'x'), f(2 * n - 3)] = x
     m[eq(n - 1, 'x'), f(2 * n)] = -1
@@ -318,12 +319,9 @@ def diagonal_gauss(mat, b, p, q):
             raise Exception("Algo no anduvo")
 
         # Process rows
-        mat[i + 1: ip_or_bottom(i, p), i: pq_or_right(i, p, q)] = \
-            mat[i + 1: ip_or_bottom(i, p), i: pq_or_right(i, p, q)] - \
-            (mat[i + 1: ip_or_bottom(i, p), i] / mat[i, i]) * mat[i, i: pq_or_right(i, p, q)]
-        b[i + 1: ip_or_bottom(i, p), 0] = \
-            b[i + 1: ip_or_bottom(i, p), 0] - \
-            (mat[i + 1: ip_or_bottom(i, p), i] / mat[i, i]) * b[i, 0]
+        factor = (mat[i + 1:, i] / mat[i, i])
+        mat[i + 1:, i:] = mat[i + 1:, i:] - factor * mat[i, i:]
+        b[i + 1:, :] = b[i + 1:, :] - factor * b[i, :]
 
     return mat, b, permutations
 
@@ -624,7 +622,6 @@ def check_matrix(m):
 
 def parse_input():
     import sys
-    from ipdb import set_trace; set_trace()
     filename = sys.argv[1]
     data = open(filename, 'r')
     span = float(data.readline())
@@ -637,15 +634,15 @@ def parse_input():
 
     return build_matrix(n, span, h, C)
 
-#from ipdb import set_trace; set_trace()
-m = parse_input()
+m = build_matrix(6, 18, 2, [1, 1, 1, 1, 1])
+#m = parse_input()
 dim_n = m.shape[0]
 square = m[:, 0:dim_n]  # Take the last row out
 B = m[:, dim_n]  # Last row
-from ipdb import set_trace; set_trace()
 #show_matrix(solution)
 #dim_n = np.shape(m)[0]
-#mat, b, permutations = diagonal_gauss(square, B, 6, 6)
+from ipdb import set_trace; set_trace()
+mat, b, permutations = diagonal_gauss(square, B, 6, 6)
 #show_matrix(m)
 check_matrix(m)
 format_result(solve_problem(m))
