@@ -69,7 +69,6 @@ void operacion(double * m, int i, int j, double mult, int n) {
     // j must be lower than i
     //m[i] = m[i] + m[j] * mult
     for (int k = max(j - p, 0); k < min(n, j + p + q + 1); ++k) {
-        printf("poniendo en la fila i %i, pos k %i, fila j %i * mult %f\n", i, k, j, mult);
         pos(m, i, k) = pos(m, i, k) + mult * pos(m, j, k);
     } 
     posc(m, i) = posc(m, i) + mult * posc(m, j);
@@ -230,6 +229,34 @@ void armar_matriz(double * m, int n, double h, double span, double * C) {
     
 }
 
+void triangular_matriz(double * m, int n) {
+    int i, j, max_i;
+    double max_fabs, pivot, mult; 
+    // Itero por las filas
+    for (i = 0; i < n; ++i) {
+        // Busco el mayor pivot
+        max_fabs = fabs(pos(m, i, i));
+        max_i = i;
+        for (j = i + 1; j < min(i + p + 1, n); ++j) {
+            if (fabs(pos(m, j, i)) > max_fabs) {
+                max_fabs = fabs(pos(m, j, i));
+                max_i = j;
+            }
+        }
+        // Si el mayor esta en otra fila permuto
+        if (max_i != i) {
+            permutar(m, i, max_i, n);
+        }
+        pivot = pos(m, i, i);
+        for (j = i + 1; j < min(i + p + 1, n); ++j) {
+            if (pos(m, j, i) != 0) {
+                mult = - pos(m, j, i) / pivot;
+                operacion(m, j, i, mult, n);
+            }
+        }
+    }
+}
+
 int main (int argc, char * argv[]) {
 
     // Todos los valores de entrada deben estar
@@ -302,6 +329,8 @@ int main (int argc, char * argv[]) {
 
     dibujar_matriz(m, 4 * n);
     printf("\n");
+    triangular_matriz(m, n * 4);
+    dibujar_matriz(m, 4 * n);
     // permutar(m, 5, 7, 4 * n);
     // operacion(m, 11, 9, 1, 4 * n);
     // dibujar_matriz(m, 4 * n);
