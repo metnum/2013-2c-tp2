@@ -1,0 +1,7 @@
+bin
+*.swp
+*.log
+*.aux
+*.pdf
+*.pyc
+*.toc
