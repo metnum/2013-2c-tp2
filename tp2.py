@@ -273,6 +273,94 @@ def build_matrix(n, span, h, C):
 
 # <codecell>
 
+def diagonal_gauss(mat, b, p, q):
+    """
+    Solve a system of diagonal matrix
+    """
+    (n, m) = mat.shape
+    permutations = [] # Vector of permutations
+
+    def ip_or_bottom(i, p):
+        if i + p > n:
+            return n
+        else:
+            return i + p
+
+    def pq_or_right(i, p, q):
+        if i + p + q > n - 1:
+            return n - 1
+        else:
+            return i + p + q
+
+    for i in xrange(n):
+        # Find pivot
+        pmax = abs(mat[i, i])
+        ppos = i
+
+        for j in xrange(i, min(i + p, n)):
+            if abs(mat[j, i]) > pmax:
+                pmax = abs(mat[j, i])
+                ppos = j
+
+        if ppos != i:
+            permutations.append((i, ppos))
+            temp = mat[i, i:pq_or_right(i, p, q)].copy()
+            temp2 = mat[ppos, i:pq_or_right(i, p, q)].copy()
+            mat[i, i:pq_or_right(i, p, q)] = temp2
+            mat[ppos, i:pq_or_right(i, p, q)] = temp
+            temp = b[i, 0].copy()
+            temp2 = b[ppos, 0].copy()
+            b[i, 0] = temp2
+            b[ppos, 0] = temp
+
+        if mat[i, i] == 0:
+            print i
+            raise Exception("Algo no anduvo")
+
+        # Process rows
+        mat[i + 1: ip_or_bottom(i, p), i: pq_or_right(i, p, q)] = \
+            mat[i + 1: ip_or_bottom(i, p), i: pq_or_right(i, p, q)] - \
+            (mat[i + 1: ip_or_bottom(i, p), i] / mat[i, i]) * mat[i, i: pq_or_right(i, p, q)]
+        b[i + 1: ip_or_bottom(i, p), 0] = \
+            b[i + 1: ip_or_bottom(i, p), 0] - \
+            (mat[i + 1: ip_or_bottom(i, p), i] / mat[i, i]) * b[i, 0]
+
+    return mat, b, permutations
+
+
+def diagonal_backward(mat, p, q, b, permutations):
+    n = mat.shape[0]
+    y = zeros((n, 1))
+
+    def ip_or_bottom(i, p):
+        if i + p > n:
+            return n
+        else:
+            return i + p
+
+    def pq_or_right(i, p, q):
+        if i + p + q > n :
+            return n
+        else:
+            return i + p + q
+
+    y[n - 1, 0] = b[n - 1, 0]
+
+    for i in xrange(n - 2, -1, -1):
+        y[i, 0] = b[i, 0] - mat[i, i:pq_or_right(i, p, q)] * y[i: pq_or_right(i, p, q), 0] / mat[i, i]
+
+    for (i, j) in reversed(permutations):
+        temp = mat[i, i:pq_or_right(i, p, q)].copy()
+        temp2 = mat[j, i:pq_or_right(i, p, q)].copy()
+        mat[i, i:pq_or_right(i, p, q)] = temp2
+        mat[j, i:pq_or_right(i, p, q)] = temp
+        temp = b[i, 0].copy()
+        temp2 = b[j, 0].copy()
+        b[i, 0] = temp2
+        b[j, 0] = temp
+
+    return mat, b
+
 def solve_problem(A):
     # Use the scipy.linalg solver
     # Make matrix square and use the weights solutions as the B matrix
@@ -473,12 +561,12 @@ def show_matrix(m):
     show()
 
 
-def force_position(pos):
+def force_position(pos, mat):
     if pos == 0:
         return "H0"
     if pos == 1:
         return "V0"
-    if pos < 4 * n - 1:
+    if pos < 4 * mat.shape[0] - 1:
         return "F" + str(pos - 1)
     else:
         return "V1"
@@ -489,7 +577,7 @@ def format_result(result):
     Given a result column vector, show the values assigned
     """
     for pos in range(0, result.shape[0]):
-        print force_position(pos) + ": " + str(result[pos, 0])
+        print force_position(pos, result) + ": " + str(result[pos, 0])
 
 
 def check_matrix(m):
@@ -531,30 +619,33 @@ def check_matrix(m):
         for column in xrange(m.shape[1]):
             if m[row, column] != 0.0:
                 print ("Vertex " + str(row / 2) + " " + ("horizontal" if row % 2 == 0 else "vertical") + ": " +
-                    force_position(column))
+                    force_position(column, m))
 
 
 def parse_input():
     import sys
+    from ipdb import set_trace; set_trace()
     filename = sys.argv[1]
     data = open(filename, 'r')
-#show_matrix(m[:, 0:np.shape(m)[1] - 1])
+    span = float(data.readline())
+    h = float(data.readline())
+    n = int(data.readline())
 
-#show_matrix(m)
-#dim_n = np.shape(m)[0]
-#square = m[:, 0:dim_n]  # Take the last row out
+    C = [0] * (n - 1)
+    for item in xrange(n - 1):
+        C[item] = (float(data.readline()))
+
+    return build_matrix(n, span, h, C)
+
 #from ipdb import set_trace; set_trace()
-#show_matrix(square)
-#B = m[:, n]  # Last row
-#check_matrix(square)
-# fact, perm = lu(square)
-# solution = solve_lu(fact, perm, B)
-# show_matrix(solution)
-#resolved = gauss(square, B)
+m = parse_input()
+dim_n = m.shape[0]
+square = m[:, 0:dim_n]  # Take the last row out
+B = m[:, dim_n]  # Last row
+from ipdb import set_trace; set_trace()
+#show_matrix(solution)
+#dim_n = np.shape(m)[0]
+#mat, b, permutations = diagonal_gauss(square, B, 6, 6)
+#show_matrix(m)
+check_matrix(m)
 format_result(solve_problem(m))
-
-
-# <codecell>
-
-
-# <codecell>
