@@ -1,0 +1,76 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc} 
+% para poder usar tildes en archivos UTF-8 
+\usepackage[spanish]{babel} 
+% para que comandos como \today den el resultado en castellano 
+\usepackage{a4wide} 
+% márgenes un poco más anchos que lo usual 
+\usepackage[conEntregas]{caratula}
+\usepackage{makeidx}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{algorithm2e}
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+
+\pagestyle{fancy}
+\fancyhead[L]{Métodos Numéricos - Análisis de estructuras Pratt Truss}
+\fancyhead[R]{Escalante, Osinski, Raskovsky}
+\fancyfoot[C]{\thepage}
+
+\begin{document}
+
+\titulo{Trabájo Práctico 1} \subtitulo{Quake III FastInvSqrt()}
+
+\fecha{\today}
+
+\materia{Métodos Numéricos}
+% \grupo{Grupo Los Amantes de tu Hermana}
+
+\integrante{Escalante, José}{822/06}{joe.escalante@gmail.com}
+\integrante{Osinski, Andrés}{405/07}{andres.osinski@gmail.com}
+\integrante{Raskovsky, Iván Alejandro}{57/07}{iraskovsky@dc.uba.ar}
+
+% TODO: Agregar abstract y 4 palabras claves
+
+% El tutulo debera ser breve y apropiado para una rapida identificacion del
+% contenido del trabajo. El resumen, de no mas de 200 palabras, debera explicar
+% brevemente el trabajo realizado y las conclusiones de los autores de manera
+% que pueda ser util por ser solo para dar una idea del contenido del trabajo.
+% Las palabras clave, no mas de cuatro, deben ser terminos tecnicos que den una
+% idea del contenido del trabajo para facilitar su busqueda en una base de
+% datos tematica.
+
+\maketitle
+\tableofcontents
+\newpage
+
+    \input{archivos/abstract.tex}
+    \newpage
+    \input{archivos/intro_teorica.tex}
+    \newpage
+    \input{archivos/desarrollo.tex}
+    \newpage
+    \input{archivos/resultados.tex}
+    \newpage
+    \input{archivos/discusion.tex}
+    \newpage
+    \input{archivos/conclusiones.tex}
+    \newpage
+
+    \appendix
+% En el apendice A se incluira el enunciado del TP. En el apendice B se
+% incluiran los codigos fuente de las funciones relevantes desde el punto de
+% vista numerico. Resultados que valga la pena mencionar en el trabajo pero que
+% sean demasiado especicos para aparecer en el cuerpo principal del trabajo
+% podran mencionarse en sucesivos apendices rotulados con las letras mayusculas
+% del alfabeto romano. Por ejemplo: la demostracion de una propiedad que
+% aplican para optimizar el algoritmo que programaron para resolver un
+% problema.
+%    \input{archivos/enunciado.tex}
+    \input{archivos/referencias.tex}
+    \input{archivos/anexos.tex}
+
+\end{document}
