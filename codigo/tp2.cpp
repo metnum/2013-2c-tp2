@@ -48,6 +48,12 @@ void dibujar_matriz(double * m, int n) {
     }
 }
 
+void dibujar_diagonal(double * m, int n) {
+    for (int i = 0; i < n; ++i) {
+        printf("%f\n", pos(m, i, i));
+    }
+}
+
 void permutar(double * m, int i, int j, int n) {
     // i must be lower than j
     double swap;
@@ -257,6 +263,19 @@ void triangular_matriz(double * m, int n) {
     }
 }
 
+void backwards_substitution(double * m, int n) {
+    // Ir de atras para adelante, completando la diagonal
+    double acumulado;
+    int i, j;
+    for (i = n -1; i >= 0; --i) {
+        acumulado = posc(m, i);
+        for (j = min(n - 1, i + p + q); j > i; --j) {
+            acumulado -= pos(m, i, j) * pos(m, j, j);
+        }
+        pos(m, i, i) = acumulado / pos(m, i, i);
+    }
+}
+
 int main (int argc, char * argv[]) {
 
     // Todos los valores de entrada deben estar
@@ -320,7 +339,7 @@ int main (int argc, char * argv[]) {
 
     // Obtengo el vector de cargas
     for (int i = 0; i < n - 1; ++i) {
-        C[i] = i + 1;
+        C[i] = 0.2;
         printf("%f ", C[i]);
     }
     printf("\n");
@@ -331,6 +350,8 @@ int main (int argc, char * argv[]) {
     printf("\n");
     triangular_matriz(m, n * 4);
     dibujar_matriz(m, 4 * n);
+    backwards_substitution(m, n * 4);
+    dibujar_diagonal(m, 4 * n);
     // permutar(m, 5, 7, 4 * n);
     // operacion(m, 11, 9, 1, 4 * n);
     // dibujar_matriz(m, 4 * n);
