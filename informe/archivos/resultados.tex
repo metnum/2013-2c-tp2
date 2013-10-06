@@ -15,12 +15,17 @@ Nuestra hipótesis basada simplemente en el instinto es que las fuerzas irían a
 
 \begin{center}
 \includegraphics[scale=0.8]{archivos/graficos/Fuerza-x-span.png}\\
-Evolución de la fuerza máxima a medida que crece el $span$
 \end{center}
 
-Podemos ver que la fuerza mayor está en $f_{14}$ hasta que el ancho de la sección es de 5,5 (donde el ratio de ancho vs. altura es de 1,83), luego pasa a ser $f_2$.\\
+\begin{center}
+\includegraphics[scale=0.8]{archivos/graficos/Fuerza-x-span2.png}\\
+\end{center}
+
+Para el primer gráfico la fuerza mayor está en $f_{14}$ hasta que el ancho de la sección es de 5,5 (donde el ratio de ancho vs. altura es de 1,83), luego pasa a ser $f_2$.\\
 
 $f_{14}$ es la viga superior izquierda central (como el puente es simétrico y cualquier asimetría se debe a pequeños errores numéricos, el link $f_{18}$ tiene un valor idéntico).\\
+
+Similarmente se puede realizar un análisis parecido para el segundo gráfico, donde la fuerza mayor ocurre en los links cuya posición es análoga al primer gráfico.\\
 
 Esto indica que, para puentes con secciones más altas que anchas, la vigas superiores centrales se comprimen al soportar todo el peso del puente en una forma desproporcionada.\\
 
@@ -30,7 +35,12 @@ Y como se puede observar la fuerza máxima disminuye, contrariamente a lo que ha
 
 \subsection{Experimento 2: Aumentar el span, pero fijando una carga central}
 
+Ahora veamos que sucede cuando aumentamos el $span$ dejando todo fijo pero colocando solamente un peso significativo en la junta central y fijando las restantes en 0.
+
 \begin{center}
-\includegraphics[scale=0.8]{archivos/graficos/Fuerza-x-span2.png}\\
-Evolución de la fuerza máxima a medida que crece el $span$ con un peso central
+\includegraphics[scale=0.8]{archivos/graficos/Fuerza-x-span-peso-central.png}\\
 \end{center}
+
+Cuando ponemos el peso equivalente a la carga distribuida uniformemente en el vértice central, notamos que el comportamiento es idéntico al experimento anterior en forma, pero la fuerza máxima soporta por un link es considerablemente mayor, y el valor del span desde el cual la fuerza máxima es soportada por las vigas diagonales exteriores es mayor (cuando el $span = 600$).\\
+
+Esto se explicaría porque la distribución centralizada del peso fuerza a que las vigas centrales lo carguen sin la ayuda de las vigas inferiores más lejos del centro del puente, que ayudan a soportar el peso cuando el mismo es más uniforme.
