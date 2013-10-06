@@ -696,7 +696,7 @@ class BaseExperimento():
             self.print_forces(prog_args, output)
 
 
-class SpanStudyExp1(BaseException):
+class SpanStudyExp1(BaseExperimento):
     resultados = []
     C = [5, 5, 5, 5, 5, 5, 5]
     n = 8
@@ -721,114 +721,78 @@ class SpanStudyExp1(BaseException):
             print "%s, %s, %s, %s" % (span, (span/self.n), ((span/self.n)/self.h), self.max_force(prog_args, output))
 
 
-class Experimento(object):
-    """
-    Clase que realiza experimentos para probar distintos resultados
+class SpanStudyExp2(BaseExperimento):
+    resultados = []
+    C = [5] * 7
+    n = 8
+    h = 3
 
-    n:        cantidad de secciones
-    h:        altura de la estructura
-    span:     ancho del puente
-    analisis: tipo de analisis que se va a realizar ('span', 'c_uniform', 'c_rotative_weigth')
-    limite:   argumento de limite para el tipo de analisis
-    """
-    n = None
-    h = None
-    span = None
-    analisis = None
-    limite = None
+    def max_force(self, prog_args, output):
+        lines = [abs(float(line)) for line in output.split('\n')[1: -1]]
+        max_force = 0
+        max_pos = -1
+        for lineno, line in enumerate(lines):
+            if line > max_force:
+                max_force = line
+                max_pos = lineno
 
-    _has_run = False
+        return force_position(max_pos, len(lines))
 
-    resultados = None
+    def __init__(self):
+        executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
 
-    def __init__(self, n=None, h=None, span=None, analisis=None, limite=None):
-        if n:
-            self.n = int(n)
-        if h:
-            self.h = int(h)
-        if span:
-            self.span = int(span)
-        if analisis:
-            self.analisis = analisis
-        if limite:
-            self.limite = int(limite)
+        # from 0.5 to 2 * 9 * n * h
+        spans = [float(v)/2 for v in xrange(self.n, 2 * 9 * self.n * self.h, self.n)]
 
-    def run(self):
-        if self.resultados:  # ya se corrio
-            return
+        print ("Span, section width, section width / h, Max force Link")
+        for span in spans:
+            prog_args = ["%s" % arg for arg in [executable] + [
+                span, self.h, self.n] + self.C]
+            output = check_output(prog_args)
+            self.resultados.append(output)
+            print "%s, %s, %s, %s" % (span, (span/self.n), ((span/self.n)/self.h), self.max_force(prog_args, output))
 
-        # chequeo que todos los valores sean correctos
-        params = {}
 
-        if self.n > 0:
-            params['n'] = self.n
-        else:
-            raise ValueError(u"'n' tiene que ser mayor a 0")
+class SpanCentralWeightStudy(BaseExperimento):
+    resultados = []
+    C = ([0] * 9) + [5 * 19] + ([0] * 9)
+    n = 20
+    h = 3
 
-        if self.h > 0:
-            params['h'] = self.h
-        else:
-            raise ValueError(u"'h' tiene que ser mayor a 0")
+    def max_force(self, prog_args, output):
+        span = float(prog_args[1])
+        if 59 < span < 61 or 649 < span < 651:
+            from ipdb import set_trace; set_trace()
+        lines = [abs(float(line)) for line in output.split('\n')[1: -1]]
+        return max(lines)
 
-        if self.analisis == "span":
-            params['analisis'] = 's'
-        elif self.analisis == "c_uniform":
-            params['analisis'] = 'cu'
-        elif self.analisis == "c_rotative_weigth":
-            params['analisis'] = 'cr'
-        else:
-            raise ValueError(u"El criterio tiene que ser 'span', 'c_uniform' o 'c_rotative_weigth'.")
+    def max_force_name(self, prog_args, output):
+        lines = [abs(float(line)) for line in output.split('\n')[1: -1]]
+        max_force = 0
+        max_pos = -1
+        for lineno, line in enumerate(lines):
+            if line > max_force:
+                max_force = line
+                max_pos = lineno
 
-        if isinstance(self.limite, (float, int)):
-            params['limite'] = self.limite
-        else:
-            raise ValueError(u"El limite tiene que ser un numero.")
+        return force_position(max_pos, len(lines))
 
-        args = [
-            params['n'],
-            params['h'],
-            params['span'],
-            params['criterio'],
-            params['limite'],
-        ]
 
-        executable = os.path.join(os.getcwd(), "bin/tp2")
+    def __init__(self):
+        executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
 
-        self.resultados = []
+        # from 0.5 to 2 * 9 * n * h
+        spans = [float(v)/2 for v in xrange(self.n, 2 * 15 * self.n * self.h, self.n)]
 
-        # FIXME: Hasta acá llegué....
-        try:  # Para poder detener el test y poder ver resultados
-            for alpha in self.entradas:
-                prog_args = ["%s" % arg for arg in [executable, alpha] + args]
-
-                output = check_output(prog_args)
-                segmentos = output.split("\n\n")
-                if len(segmentos) == 3:
-                    detalle, iteraciones, resultados = segmentos
-                    iteraciones = map(lambda line: line.split(" ")[0], iteraciones.split("\n"))
-                else:
-                    detalle, resultados = segmentos
-                    resultados = resultados.lstrip("\n")
-                    iteraciones = []
-
-                resultados = map(lambda line: line.split(" ")[0], resultados.split("\n"))
-                resultado = float(resultados[0])
-                iteraciones = int(resultados[1])
-                absoluto = float(resultados[2])
-                relativo = float(resultados[3])
-                tiempo = float(resultados[4])
-
-                self.resultados.append({
-                    'alpha': alpha,
-                    'iteraciones': iteraciones,
-                    'resultado': resultado,
-                    'absoluto': absoluto,
-                    'relativo': relativo,
-                    'tiempo': tiempo,
-                })
-        except KeyboardInterrupt:
-            import sys
-            sys.exc_clear()
+        print ("Span, section width, section width / h, Max force Link")
+        for span in spans:
+            prog_args = ["%s" % arg for arg in [executable] + [
+                span, self.h, self.n] + self.C]
+            output = check_output(prog_args)
+            self.resultados.append(output)
+            print "%s, %s, %s, %s, %s " % (
+                span, (span/self.n), ((span/self.n)/self.h), self.max_force(prog_args, output),
+                self.max_force_name(prog_args, output))
 
 
 
@@ -845,7 +809,7 @@ B = m[:, dim_n]  # Last row
 # show_matrix(m)
 # check_matrix(m)
 #experimento = BaseExperimento([[18, 2, 6, 1, 1, 1, 1, 1]])
-SpanStudyExp1()
+SpanCentralWeightStudy()
 #format_result(solve_problem(m))
 
 # check_final_force_results(9, 6, 100, 4)
