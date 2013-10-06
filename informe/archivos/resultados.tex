@@ -33,7 +33,9 @@ Conforme la sección se hace más ancha, esa carga parece disminuir, hasta que l
 
 Y como se puede observar la fuerza máxima disminuye, contrariamente a lo que habíamos formulado en un principio. A la luz de los resultados creemos que esto puede deberse a que a medida que el $span$ crece los angulos en los links diagonales se van achicando haciendo que al multiplicar por las fuerzas, el valor numérico de estas disminuya.\\
 
-Veamos los histogramas para las fuerzas mencionadas:
+\subsubsection{Distribución de la cantidad de fuerzas}
+
+Analicemos ahora la distribución de la cantidad de fuerzas en los casos cuando el $span$ es igual a 200 y a 400. En cada caso el set de datos será: $n = 20$, $h = 3$ y $C_i = 5$ para $i \in [1 \dots 19]$
 
 \begin{center}
 \includegraphics[scale=0.8]{archivos/graficos/hist_200.png}\\
@@ -43,6 +45,8 @@ Veamos los histogramas para las fuerzas mencionadas:
 \includegraphics[scale=0.8]{archivos/graficos/hist_400.png}\\
 \end{center}
 
+Comparando ambos gráficos se puede ver que la cantidad de fuerzas se va uniformando hacia el valor $0$. Es decir que el promedio de las fuerzas va disminuyendo a medida que el $span$ crece. Esto se condice con el análisis anterior en el cual veíamos como la fuerza mayor disminuía a mayor $span$.
+
 \subsection{Experimento 2: Aumentar el span, pero fijando una carga central}
 
 Ahora veamos que sucede cuando aumentamos el $span$ dejando todo fijo pero colocando solamente un peso significativo en la junta central y fijando las restantes en $0$.
@@ -51,6 +55,6 @@ Ahora veamos que sucede cuando aumentamos el $span$ dejando todo fijo pero coloc
 \includegraphics[scale=0.8]{archivos/graficos/Fuerza-x-span-peso-central.png}\\
 \end{center}
 
-Cuando ponemos el peso equivalente a la carga distribuida uniformemente en el vértice central, notamos que el comportamiento es idéntico al experimento anterior en forma, pero la fuerza máxima soporta por un link es considerablemente mayor, y el valor del span desde el cual la fuerza máxima es soportada por las vigas diagonales exteriores es mayor (cuando el $span = 600$).\\
+Cuando ponemos el peso equivalente a la carga distribuida uniformemente en el vértice central, notamos que el comportamiento es idéntico al experimento anterior en forma, pero la fuerza máxima soporta por un link es considerablemente mayor, y el valor del span desde el cual la fuerza máxima es soportada por las vigas diagonales exteriores es mayor (cuando $span = 600$).\\
 
 Esto se explicaría porque la distribución centralizada del peso fuerza a que las vigas centrales lo carguen sin la ayuda de las vigas inferiores más lejos del centro del puente, que ayudan a soportar el peso cuando el mismo es más uniforme.
