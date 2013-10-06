@@ -1,9 +1,17 @@
+// Escalante, Osinski, Raskovsky
+// Grupo 16
+#define grupo 16
+
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
 #include <float.h>
 #include <math.h>
 #include <sys/time.h>
+#include <fstream>
+#include <iostream>
+using namespace std;
+
 
 #define p 4
 #define q 4
@@ -276,99 +284,106 @@ void backwards_substitution(double * m, int n) {
     }
 }
 
+double max_abs_diagonal(double * m, int n) {
+    double max_abs = 0;
+    for (int i = 0; i < n; ++i) {
+        if (fabs(pos(m, i, i)) > max_abs) {
+            max_abs = fabs(pos(m, i, i));
+        }
+    }
+    return max_abs;
+}
+
+double procesar_seccion(double * m, double h, double span, double * C, int inicio, int fin) {
+
+    int secciones = fin - inicio;
+
+    // Inicializo con ceros, solo la parte de esta seccion
+    for (int i = 0; i < banda * 4 * secciones; ++i) {
+        m[i] = 0;
+    }
+
+    // Muevo el array C
+    armar_matriz(m, secciones, h, span, &(C[inicio]));
+
+    triangular_matriz(m, secciones * 4);
+    backwards_substitution(m, secciones * 4);
+    dibujar_diagonal(m, secciones * 4);
+    return secciones;
+}
+
+double costo(int n, int secciones, double h, double span, double max_stress_seccion) {
+    double x = span / n;
+    double diagonal = sqrt( h * h + x * x );
+    return ( diagonal * secciones + x * ( secciones * 2 - 2 ) + h * ( secciones - 1 ) ) * max_stress_seccion;
+}
+
 int main (int argc, char * argv[]) {
 
     // Todos los valores de entrada deben estar
-    if (argc < 4 ) {
-        printf("Ejectuar ./tp2 <span> <h> <n> <cargas..>\n");
+    if (argc < 2 ) {
+        cout << "Ejectuar ./tp2 <filename>" << endl;
         exit(-1);
     }
 
-    // Leo la entrada
-    char * end;
-    double span = strtod(argv[1], &end);
-    if (argv[1] == end) {
-        printf("Error: El <span> debe ser un double\n");
-        exit(-1);
-    }
-    double h = strtod(argv[2], &end);
-    if (argv[2] == end) {
-        printf("Error: El <h> debe ser un double\n");
-        exit(-1);
-    }
-    double n = strtod(argv[3], &end);
-    if (argv[3] == end) {
-        printf("Error: El <n> debe ser un double\n");
-        exit(-1);
+    // Leer de archivo y armar todo
+    ifstream file (argv[1]);
+    if (!file.is_open()) {
+        cout << "No puedo abrir el archivo!!" << endl;
+            return 1;
     }
 
+    double span;
+    double h;
+    int n;
+    double costo_pilar;
+    double fmax;
 
-    // printf("span: %f, h: %f, n: %f\n", span, h, n);
+    file >> span;
+    file >> h;
+    file >> n;
 
+    // Agarrar memoria para la matriz banda y las cargas
     double * m = (double *) malloc(sizeof(double) * banda * 4 * n);  // 4n ecuaciones *  (banda + cargas Ci)
     double * C = (double *) malloc(sizeof(double) * (n - 1));  // vector de cargas iniciales
+
     if (m == NULL){
-        printf("ERROR: me quede sin memoria :( snif...\n");
+        cout << "ERROR: me quede sin memoria :( snif...\n" << endl;
         return 1;
     }
 
     // Lleno vector de cargas
     for(int i = 0; i < n - 1; i++) {
-        C[i] = strtod(argv[i + 4], &end);
+        file >> C[i];
     }
 
-    // Inicializo con ceros
-    for (int i = 0; i < banda * 4 * n; ++i) {
-        m[i] = 0;
-    }
+    file >> costo_pilar;
+    file >> fmax;
 
-    // Lleno la matriz original con algo
-    // for (int i = 0; i < n * 4; ++i) {
-    //     for (int j = 0; j < n * 4; ++j) {
-    //         if (j - i + p >= 0 && j - i <= q) {
-    //             if (i <= j)
-    //             pos(m, i, j) = i + j + 1;
-    //         }
-    //     }
-    //     // y los C
-    //     posc(m, i) = i;
-    // }
+    // Termine de leer del archivo
 
-    // Seteo la diagonal
-    // for (int i = 0; i < 4 * n; ++i) {
-    //     for (int j = 0; j < 4 * n; ++j) {
-    //         if (i == j) {
-    //             pos(m, i, j) = 8;
-    //         }
-    //     }
-    // }
+    // printf("span: %f, h: %f, n: %i, C: %f, fmax: %f\n", span, h, n, costo_pilar, fmax);
 
-    // Obtengo el vector de cargas
-    /*
-    for (int i = 0; i < n - 1; ++i) {
-        printf("%f ", C[i]);
-    }
-    printf("\n");
-    */
 
-    armar_matriz(m, n, h, span, C);
+    // proceso la matriz
+    int secciones = procesar_seccion(m, h, span, C, 0, 4);
 
-    // dibujar_matriz(m, 4 * n);
-    printf("\n");
-    triangular_matriz(m, n * 4);
-    // dibujar_matriz(m, 4 * n);
-    backwards_substitution(m, n * 4);
-    dibujar_diagonal(m, 4 * n);
-    // permutar(m, 5, 7, 4 * n);
-    // operacion(m, 11, 9, 1, 4 * n);
-    // dibujar_matriz(m, 4 * n);
+    // obtengo el maximo stress
+    double max_stress_seccion = max_abs_diagonal(m, secciones * 4);
 
+    // calculo el costo
+    double costo_seccion = costo(n, secciones, h, span, max_stress_seccion);
+
+    cout << endl << max_stress_seccion << " " << costo_seccion << endl;
 
     // Empiezo a contar el tiempo
     init_time();
     double tiempo_total = get_time();
 
+    // Cleanup
+    file.close();
     free(m);
+    free(C);
     return 0;
 }
 
