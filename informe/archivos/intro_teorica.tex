@@ -1,1 +1,13 @@
 \section{Introducción Teórica}
+
+\subsection{Armado de la matriz}
+
+Dada la estructura del puente y que el enunciado del problema pedía averiguar las fuerzas que se aplicaban a cada link, es natural plantear como las incógnitas de nuestros sistemas a las fuerzas. Las ecuaciones serán las juntas sobre las que cada fuerza ejerce su influencia.\\
+
+Veamos que esto forma una matriz cuadrada: La cantidad de links (sobre los cuales las fuerzas se aplican) es $4n - 3$ pero además tenemos las fuerzas que se aplican en los extremos del puente ($v_0$ y $v_1$) y el $h_0$, lo que hace que en total sean $4n$ fuerzas. Luego la cantidad de juntas son $2n$, pero como bien se explicó en el enunciado, para plantear la ecuación de las fuerzas sobre una junta, hace falta descomponer estas en los ejes $x$ e $y$, produciendo que tengamos dos ecuaciones por cada junta, quedándonos $4n$ ecuaciones.\\
+
+Para numerar los links empezamos desde abajo hacia arriba y de izquierda a derecha.
+
+\subsection{Matriz Banda $p$, $q$}
+
+Como se mostró en el enunciado la matriz es banda $p$, $q$. El valor de $p$ y de $q$ va a estar determinado por la cantidad de ecuaciones en las que una determinada fuerza aparezca. Observando las juntas, tomamos aquella en la cual mas fuerzas se aplican, esta obviamente es la central, en cuyo eje $x$ intervienen 5 fuerzas. 
