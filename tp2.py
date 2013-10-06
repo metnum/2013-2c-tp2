@@ -634,15 +634,163 @@ def parse_input():
 
     return build_matrix(n, span, h, C)
 
-m = build_matrix(6, 18, 2, [1, 1, 1, 1, 1])
-#m = parse_input()
-dim_n = m.shape[0]
-square = m[:, 0:dim_n]  # Take the last row out
-B = m[:, dim_n]  # Last row
+
+def check_final_force_results(force_i, n, span, h, param_to_increment='span'):
+    force_i_results = []
+    if param_to_increment == 'span':
+        C = [4] * (n - 1)
+        for i in xrange(10,span):
+            force_i_results.append(solve_problem(build_matrix(n, i, h, C))[f(force_i)])
+
+
+    elif param_to_increment == 'c_uniform':
+        C = [1] * (n - 1)
+        for i in xrange(1,100):
+            force_i_results.append(solve_problem(build_matrix(n, span, h, C))[f(force_i)])
+            C = [ x + 1 for x in C ]
+
+    elif param_to_increment == 'c_rotative_weigth':
+        for i in xrange(0, n - 1):
+            C = [4] * (n - 1)
+            C[i] = 40
+            force_i_results.append(solve_problem(build_matrix(n, span, h, C))[f(force_i)])
+
+    print "Results for the force %s incrementing %s: %s" % (force_i, param_to_increment,[ x[0] for x in force_i_results ])
+
+
+
+
+
+import collections
+import os
+from subprocess import check_output
+
+class Experimento(object):
+    """
+    Clase que realiza experimentos para probar distintos resultados
+
+    n:        cantidad de secciones
+    h:        altura de la estructura
+    span:     ancho del puente
+    analisis: tipo de analisis que se va a realizar ('span', 'c_uniform', 'c_rotative_weigth')
+    limite:   argumento de limite para el tipo de analisis
+    """
+    n = None
+    h = None
+    span = None
+    analisis = None
+    limite = None
+
+    _has_run = False
+
+    resultados = None
+
+    def __init__(self, n=None, h=None, span=None, analisis=None, limite=None):
+        if n:
+            self.n = int(n)
+        if h:
+            self.h = int(h)
+        if span:
+            self.span = int(span)
+        if analisis:
+            self.analisis = analisis
+        if limite:
+            self.limite = int(limite)
+
+    def run(self):
+        if self.resultados:  # ya se corrio
+            return
+
+        # chequeo que todos los valores sean correctos
+        params = {}
+
+        if self.n > 0:
+            params['n'] = self.n
+        else:
+            raise ValueError(u"'n' tiene que ser mayor a 0")
+
+        if self.h > 0:
+            params['h'] = self.h
+        else:
+            raise ValueError(u"'h' tiene que ser mayor a 0")
+
+        if self.analisis == "span":
+            params['analisis'] = 's'
+        elif self.analisis == "c_uniform":
+            params['analisis'] = 'cu'
+        elif self.analisis == "c_rotative_weigth":
+            params['analisis'] = 'cr'
+        else:
+            raise ValueError(u"El criterio tiene que ser 'span', 'c_uniform' o 'c_rotative_weigth'.")
+
+        if isinstance(self.limite, (float, int)):
+            params['limite'] = self.limite
+        else:
+            raise ValueError(u"El limite tiene que ser un numero.")
+
+        args = [
+            params['n'],
+            params['h'],
+            params['span'],
+            params['criterio'],
+            params['limite'],
+        ]
+
+        executable = os.path.join(os.getcwd(), "bin/tp2")
+
+        self.resultados = []
+
+        # FIXME: Hasta acá llegué....
+        try:  # Para poder detener el test y poder ver resultados
+            for alpha in self.entradas:
+                prog_args = ["%s" % arg for arg in [executable, alpha] + args]
+
+                output = check_output(prog_args)
+                segmentos = output.split("\n\n")
+                if len(segmentos) == 3:
+                    detalle, iteraciones, resultados = segmentos
+                    iteraciones = map(lambda line: line.split(" ")[0], iteraciones.split("\n"))
+                else:
+                    detalle, resultados = segmentos
+                    resultados = resultados.lstrip("\n")
+                    iteraciones = []
+
+                resultados = map(lambda line: line.split(" ")[0], resultados.split("\n"))
+                resultado = float(resultados[0])
+                iteraciones = int(resultados[1])
+                absoluto = float(resultados[2])
+                relativo = float(resultados[3])
+                tiempo = float(resultados[4])
+
+                self.resultados.append({
+                    'alpha': alpha,
+                    'iteraciones': iteraciones,
+                    'resultado': resultado,
+                    'absoluto': absoluto,
+                    'relativo': relativo,
+                    'tiempo': tiempo,
+                })
+        except KeyboardInterrupt:
+            import sys
+            sys.exc_clear()
+
+
+
+#from ipdb import set_trace; set_trace()
+# m = parse_input()
+# dim_n = m.shape[0]
+# square = m[:, 0:dim_n]  # Take the last row out
+# B = m[:, dim_n]  # Last row
+# from ipdb import set_trace; set_trace()
 #show_matrix(solution)
 #dim_n = np.shape(m)[0]
-from ipdb import set_trace; set_trace()
-mat, b, permutations = diagonal_gauss(square, B, 6, 6)
-#show_matrix(m)
-check_matrix(m)
-format_result(solve_problem(m))
+#mat, b, permutations = diagonal_gauss(square, B, 6, 6)
+# show_matrix(m)
+# check_matrix(m)
+# format_result(solve_problem(m))
+
+# check_final_force_results(9, 6, 100, 4)
+
+# check_final_force_results(9, 6, 100, 4, 'c_uniform')
+
+check_final_force_results(9, 6, 100, 4, 'c_rotative_weigth')
