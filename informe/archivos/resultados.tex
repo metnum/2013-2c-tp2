@@ -5,7 +5,7 @@
 % maquina. Algo fundamental en su aprendizaje en la materia es la presentacion
 % de resultados de forma clara y concisa para el lector
 
-\subsection{Experimento 1: Aumentar el span}
+\subsection{Experimento 1: Aumentar el span con carga uniforme}
 
 Para este tipo de experimento lo que hicimos fue fijar todos los parámetros e incrementar el $span$. El propósito de esta prueba era observar como iba evolucionando la fuerza máxima aplicada en los links.\\
 
@@ -31,11 +31,21 @@ Esto indica que, para puentes con secciones más altas que anchas, la vigas supe
 
 Conforme la sección se hace más ancha, esa carga parece disminuir, hasta que la vigas que soportan más peso son las diagonales extremas, que cargan todo el peso del puente consigo.\\
 
-Y como se puede observar la fuerza máxima disminuye, contrariamente a lo que habíamos formulado en un principio. A la luz de los resultados creemos que esto puede deberse a que a medida que el $span$ crece los angulos en los links diagonales se van achicando haciendo que al multiplicar por las fuerzas, el valor numérico de estas disminuya.
+Y como se puede observar la fuerza máxima disminuye, contrariamente a lo que habíamos formulado en un principio. A la luz de los resultados creemos que esto puede deberse a que a medida que el $span$ crece los angulos en los links diagonales se van achicando haciendo que al multiplicar por las fuerzas, el valor numérico de estas disminuya.\\
+
+Veamos los histogramas para las fuerzas mencionadas:
+
+\begin{center}
+\includegraphics[scale=0.8]{archivos/graficos/hist_200.png}\\
+\end{center}
+
+\begin{center}
+\includegraphics[scale=0.8]{archivos/graficos/hist_400.png}\\
+\end{center}
 
 \subsection{Experimento 2: Aumentar el span, pero fijando una carga central}
 
-Ahora veamos que sucede cuando aumentamos el $span$ dejando todo fijo pero colocando solamente un peso significativo en la junta central y fijando las restantes en 0.
+Ahora veamos que sucede cuando aumentamos el $span$ dejando todo fijo pero colocando solamente un peso significativo en la junta central y fijando las restantes en $0$.
 
 \begin{center}
 \includegraphics[scale=0.8]{archivos/graficos/Fuerza-x-span-peso-central.png}\\
