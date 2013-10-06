@@ -65,7 +65,7 @@ void permutar(double * m, int i, int j, int n) {
         }
         pos(m, i, k) = pos(m, j, k);
         pos(m, j, k) = swap;
-    } 
+    }
     swap = posc(m, i);
     posc(m, i) = posc(m, j);
     posc(m, j) = swap;
@@ -76,7 +76,7 @@ void operacion(double * m, int i, int j, double mult, int n) {
     //m[i] = m[i] + m[j] * mult
     for (int k = max(j - p, 0); k < min(n, j + p + q + 1); ++k) {
         pos(m, i, k) = pos(m, i, k) + mult * pos(m, j, k);
-    } 
+    }
     posc(m, i) = posc(m, i) + mult * posc(m, j);
 }
 
@@ -232,12 +232,12 @@ void armar_matriz(double * m, int n, double h, double span, double * C) {
         pos(m, eq(k, "y"), f(2 * k - 3)) = y;
         pos(m, eq(k, "y"), f(2 * k - 1)) = 1;
     }
-    
+
 }
 
 void triangular_matriz(double * m, int n) {
     int i, j, max_i;
-    double max_fabs, pivot, mult; 
+    double max_fabs, pivot, mult;
     // Itero por las filas
     for (i = 0; i < n; ++i) {
         // Busco el mayor pivot
@@ -280,7 +280,7 @@ int main (int argc, char * argv[]) {
 
     // Todos los valores de entrada deben estar
     if (argc < 4 ) {
-        printf("Ejectuar ./tp2 <span> <h> <n>\n");
+        printf("Ejectuar ./tp2 <span> <h> <n> <cargas..>\n");
         exit(-1);
     }
 
@@ -302,6 +302,7 @@ int main (int argc, char * argv[]) {
         exit(-1);
     }
 
+
     printf("span: %f, h: %f, n: %f\n", span, h, n);
 
     double * m = (double *) malloc(sizeof(double) * banda * 4 * n);  // 4n ecuaciones *  (banda + cargas Ci)
@@ -309,6 +310,11 @@ int main (int argc, char * argv[]) {
     if (m == NULL){
         printf("ERROR: me quede sin memoria :( snif...\n");
         return 1;
+    }
+
+    // Lleno vector de cargas
+    for(int i = 0; i < n - 1; i++) {
+        C[i] = strtod(argv[i + 4], &end);
     }
 
     // Inicializo con ceros
@@ -339,17 +345,16 @@ int main (int argc, char * argv[]) {
 
     // Obtengo el vector de cargas
     for (int i = 0; i < n - 1; ++i) {
-        C[i] = 0.2;
         printf("%f ", C[i]);
     }
     printf("\n");
 
     armar_matriz(m, n, h, span, C);
 
-    dibujar_matriz(m, 4 * n);
+    // dibujar_matriz(m, 4 * n);
     printf("\n");
     triangular_matriz(m, n * 4);
-    dibujar_matriz(m, 4 * n);
+    // dibujar_matriz(m, 4 * n);
     backwards_substitution(m, n * 4);
     dibujar_diagonal(m, 4 * n);
     // permutar(m, 5, 7, 4 * n);
