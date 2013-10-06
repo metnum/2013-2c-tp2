@@ -753,6 +753,43 @@ class SpanStudyExp2(BaseExperimento):
             print "%s, %s, %s, %s" % (span, (span/self.n), ((span/self.n)/self.h), self.max_force(prog_args, output))
 
 
+class AsymmetricWeightStudy(BaseExperimento):
+    resultados = []
+    C = ([0] * 3) + [47, 47] + [0] * 14
+    n = 20
+    h = 3
+
+    def max_force(self, prog_args, output):
+        lines = [abs(float(line)) for line in output.split('\n')[1: -1]]
+        return max(lines)
+
+    def max_force_name(self, prog_args, output):
+        lines = [abs(float(line)) for line in output.split('\n')[1: -1]]
+        max_force = 0
+        max_pos = -1
+        for lineno, line in enumerate(lines):
+            if line > max_force:
+                max_force = line
+                max_pos = lineno
+
+        return force_position(max_pos, len(lines))
+
+    def __init__(self):
+        executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
+
+        # from 0.5 to 2 * 9 * n * h
+        spans = [float(v)/2 for v in xrange(self.n, 2 * 9 * self.n * self.h, self.n)]
+
+        print ("Span, section width, section width / h, Max force Link")
+        for span in spans:
+            prog_args = ["%s" % arg for arg in [executable] + [
+                span, self.h, self.n] + self.C]
+            output = check_output(prog_args)
+            self.resultados.append(output)
+            print "%s, %s, %s, %s, %s" % (
+                span, (span/self.n), ((span/self.n)/self.h), self.max_force(prog_args, output),
+                self.max_force_name(prog_args, output))
+
 class SpanHistogramStudy(BaseExperimento):
     from matplotlib import pyplot as plt
     resultados = []
@@ -846,6 +883,130 @@ class SpanCentralWeightStudy(BaseExperimento):
                 self.max_force_name(prog_args, output))
 
 
+class NHistStudy(BaseExperimento):
+    resultados = []
+    span = 100.0
+    h = 3.0
+
+    def max_force(self, prog_args, output):
+        lines = [abs(float(line)) for line in output.split('\n')[1: -1]]
+        return max(lines)
+
+    def max_force_name(self, prog_args, output):
+        lines = [abs(float(line)) for line in output.split('\n')[1: -1]]
+        max_force = 0
+        max_pos = -1
+        for lineno, line in enumerate(lines):
+            if line > max_force:
+                max_force = line
+                max_pos = lineno
+
+        return force_position(max_pos, len(lines))
+
+    def __init__(self):
+        executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
+
+        # from 0.5 to 2 * 9 * n * h
+        ns = [10, 100]
+
+        print ("Span, section width, section width / h, Max force Link")
+        n = 10
+        total_c = 1000.0
+        C = [total_c/(n - 1)] * int(n - 1)
+        prog_args = ["%s" % arg for arg in [executable] + [
+            self.span, self.h, n] + C]
+        output = check_output(prog_args)
+        self.resultados.append(output)
+        print "%s, %s, %s, %s, %s" % (
+            self.span, (self.span/n), ((self.span/n)/self.h), self.max_force(prog_args, output),
+            self.max_force_name(prog_args, output))
+
+        lines = [float(line) for line in output.split('\n')[1: -1]]
+        x, bins, patches = plt.hist(lines, range(-1000, 1000, 200), histtype='stepfilled')
+        plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
+        plt.autoscale(True, 'both', False)
+        plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
+        plt.xlabel("Fuerza en viga")
+        plt.ylabel("Cantidad")
+        plt.grid(True)
+        plt.legend()
+        plt.savefig('informe/archivos/graficos/hist_n' + unicode(n) + '_C1000.png')
+
+        plt.show()
+
+        total_c = 100.0
+
+        C = [total_c/(n - 1)] * int(n - 1)
+        prog_args = ["%s" % arg for arg in [executable] + [
+            self.span, self.h, n] + C]
+        output = check_output(prog_args)
+        self.resultados.append(output)
+        print "%s, %s, %s, %s, %s" % (
+            self.span, (self.span/n), ((self.span/n)/self.h), self.max_force(prog_args, output),
+            self.max_force_name(prog_args, output))
+
+        lines = [float(line) for line in output.split('\n')[1: -1]]
+        x, bins, patches = plt.hist(lines, range(-100, 100, 20), histtype='stepfilled')
+        plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
+        plt.autoscale(True, 'both', False)
+        plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
+        plt.xlabel("Fuerza en viga")
+        plt.ylabel("Cantidad")
+        plt.grid(True)
+        plt.legend()
+        plt.savefig('informe/archivos/graficos/hist_n' + str(n) + '_C100.png')
+
+        plt.show()
+
+        n = 100
+
+        total_c = 1000.0
+        C = [total_c/(n - 1)] * int(n - 1)
+        prog_args = ["%s" % arg for arg in [executable] + [
+            self.span, self.h, n] + C]
+        output = check_output(prog_args)
+        self.resultados.append(output)
+        print "%s, %s, %s, %s, %s" % (
+            self.span, (self.span/n), ((self.span/n)/self.h), self.max_force(prog_args, output),
+            self.max_force_name(prog_args, output))
+
+        lines = [float(line) for line in output.split('\n')[1: -1]]
+        x, bins, patches = plt.hist(lines, range(-40000, 40000, 5000), histtype='stepfilled')
+        plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
+        plt.autoscale(True, 'both', False)
+        plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
+        plt.xlabel("Fuerza en viga")
+        plt.ylabel("Cantidad")
+        plt.grid(True)
+        plt.legend()
+        plt.savefig('informe/archivos/graficos/hist_n' + unicode(n) + '_C1000.png')
+
+        plt.show()
+
+        total_c = 100.0
+
+        C = [total_c/(n - 1)] * int(n - 1)
+        prog_args = ["%s" % arg for arg in [executable] + [
+            self.span, self.h, n] + C]
+        output = check_output(prog_args)
+        self.resultados.append(output)
+        print "%s, %s, %s, %s, %s" % (
+            self.span, (self.span/n), ((self.span/n)/self.h), self.max_force(prog_args, output),
+            self.max_force_name(prog_args, output))
+
+        lines = [float(line) for line in output.split('\n')[1: -1]]
+        x, bins, patches = plt.hist(lines, range(-4000, 4000, 200), histtype='stepfilled')
+        plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
+        plt.autoscale(True, 'both', False)
+        plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
+        plt.xlabel("Fuerza en viga")
+        plt.ylabel("Cantidad")
+        plt.grid(True)
+        plt.legend()
+        plt.savefig('informe/archivos/graficos/hist_n' + str(n) + '_C100.png')
+
+        plt.show()
+
 
 #from ipdb import set_trace; set_trace()
 # m = parse_input()
@@ -860,7 +1021,7 @@ B = m[:, dim_n]  # Last row
 # show_matrix(m)
 # check_matrix(m)
 #experimento = BaseExperimento([[18, 2, 6, 1, 1, 1, 1, 1]])
-SpanHistogramStudy()
+NHistStudy()
 #format_result(solve_problem(m))
 
 # check_final_force_results(9, 6, 100, 4)
