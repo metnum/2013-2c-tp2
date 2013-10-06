@@ -160,7 +160,6 @@ def build_matrix(n, span, h, C):
 
     # Fill j(n - 1).x: center lower.x equation
     # f(2 * n - 4) + f(2 * n - 3).x = f(2 * n) + f(2 * n + 1)
-    from ipdb import set_trace; set_trace()
     m[eq(n - 1, 'x'), f(2 * n - 4)] = 1
     m[eq(n - 1, 'x'), f(2 * n - 3)] = x
     m[eq(n - 1, 'x'), f(2 * n)] = -1
@@ -559,12 +558,12 @@ def show_matrix(m):
     show()
 
 
-def force_position(pos, mat):
+def force_position(pos, length):
     if pos == 0:
         return "H0"
     if pos == 1:
         return "V0"
-    if pos < 4 * mat.shape[0] - 1:
+    if pos < 4 * length - 1:
         return "F" + str(pos - 1)
     else:
         return "V1"
@@ -574,8 +573,14 @@ def format_result(result):
     """
     Given a result column vector, show the values assigned
     """
-    for pos in range(0, result.shape[0]):
-        print force_position(pos, result) + ": " + str(result[pos, 0])
+    if isinstance(result, list):
+        n = len(result)
+        for pos in range(0, n):
+            print force_position(pos, n) + ": " + str(result[pos])
+    else:
+        n = result.shape[0]
+        for pos in range(0, n):
+            print force_position(pos, result) + ": " + str(result[pos, 0])
 
 
 def check_matrix(m):
@@ -664,6 +669,57 @@ def check_final_force_results(force_i, n, span, h, param_to_increment='span'):
 import collections
 import os
 from subprocess import check_output
+
+class BaseExperimento():
+    # Executable args: span h n cargas...
+    experiments = [] # List of experiments to run
+
+    def max_force(self, prog_args, output):
+        lines = [abs(float(line)) for line in output.split('\n')[1: -1]]
+        return max(lines)
+
+    def print_forces(self, prog_args, output):
+        lines = [float(line) for line in output.split('\n')[1: -1]]
+        span, h, n = prog_args[1: 4]
+        C = prog_args[4:]
+        format_result(lines)
+
+    def __init__(self, experiments):
+        self.experiments = experiments
+        executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
+        self.resultados = []
+
+        for args in self.experiments:
+            prog_args = ["%s" % arg for arg in [executable] + args]
+            output = check_output(prog_args)
+            self.resultados.append(output)
+            self.print_forces(prog_args, output)
+
+
+class SpanStudyExp1(BaseException):
+    resultados = []
+    C = [5, 5, 5, 5, 5, 5, 5]
+    n = 8
+    h = 3
+
+    def max_force(self, prog_args, output):
+        lines = [abs(float(line)) for line in output.split('\n')[1: -1]]
+        return max(lines)
+
+    def __init__(self):
+        executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
+
+        # from 0.5 to 2 * 9 * n * h
+        spans = [float(v)/2 for v in xrange(self.n, 2 * 9 * self.n * self.h, self.n)]
+
+        print ("Span, section width, section width / h, Max force")
+        for span in spans:
+            prog_args = ["%s" % arg for arg in [executable] + [
+                span, self.h, self.n] + self.C]
+            output = check_output(prog_args)
+            self.resultados.append(output)
+            print "%s, %s, %s, %s" % (span, (span/self.n), ((span/self.n)/self.h), self.max_force(prog_args, output))
+
 
 class Experimento(object):
     """
@@ -778,19 +834,22 @@ class Experimento(object):
 
 #from ipdb import set_trace; set_trace()
 # m = parse_input()
-# dim_n = m.shape[0]
-# square = m[:, 0:dim_n]  # Take the last row out
-# B = m[:, dim_n]  # Last row
+m = build_matrix(6, 18, 2, [1, 1, 1, 1, 1])
+dim_n = m.shape[0]
+square = m[:, 0:dim_n]  # Take the last row out
+B = m[:, dim_n]  # Last row
 # from ipdb import set_trace; set_trace()
 #show_matrix(solution)
 #dim_n = np.shape(m)[0]
 #mat, b, permutations = diagonal_gauss(square, B, 6, 6)
 # show_matrix(m)
 # check_matrix(m)
-# format_result(solve_problem(m))
+#experimento = BaseExperimento([[18, 2, 6, 1, 1, 1, 1, 1]])
+SpanStudyExp1()
+#format_result(solve_problem(m))
 
 # check_final_force_results(9, 6, 100, 4)
 
 # check_final_force_results(9, 6, 100, 4, 'c_uniform')
 
-check_final_force_results(9, 6, 100, 4, 'c_rotative_weigth')
+#check_final_force_results(9, 6, 100, 4, 'c_rotative_weigth')

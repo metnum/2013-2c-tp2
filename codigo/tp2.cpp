@@ -303,7 +303,7 @@ int main (int argc, char * argv[]) {
     }
 
 
-    printf("span: %f, h: %f, n: %f\n", span, h, n);
+    // printf("span: %f, h: %f, n: %f\n", span, h, n);
 
     double * m = (double *) malloc(sizeof(double) * banda * 4 * n);  // 4n ecuaciones *  (banda + cargas Ci)
     double * C = (double *) malloc(sizeof(double) * (n - 1));  // vector de cargas iniciales
@@ -344,10 +344,12 @@ int main (int argc, char * argv[]) {
     // }
 
     // Obtengo el vector de cargas
+    /*
     for (int i = 0; i < n - 1; ++i) {
         printf("%f ", C[i]);
     }
     printf("\n");
+    */
 
     armar_matriz(m, n, h, span, C);
 
