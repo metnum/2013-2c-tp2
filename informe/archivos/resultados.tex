@@ -88,3 +88,16 @@ Debido a esto se puede ver que el link diagonal, cuanto más angosta cada secci�
 El resultado es que los links diagonales y verticales soportan poco peso, y las horizontales soportan toda la fuerza necesaria para que el puente no se deforme.\\
 
 En ese caso los links superiores de comprimen, y las inferiores se tensionan equivalentemente.
+
+\subsubsection{Casos de prueba para Heurística}
+
+\begin{itemize}
+	\item Caso de puente simple de 8 segmentos: En primera instancia, una vez hechas la pruebas con puentes de
+2 y 4 segmentos para verificar que la heurística funcionaba bien para casos
+extremadamente básicos, analizamos un puente simple de 8 segmentos y redujimos
+el costo hasta ver que la heurístia considere pertinente agregar un pilar. Es decir nuestra heurística colocaba pilares alrededor las pesos que de mayor magnitud. Esto en principio podría considerarse bastante básico pero es un enfoque válido a nuestro criterio
+	\item Caso de puente simple de mas de 8 segmentos:	Luego elegimos probar uno de los casos de estudio para estudiar la
+distribución de fuerzas interas del puente, con span fijo de 100,
+n de 10 y 100, y tanto pesos uniformes en el puente, como pesos
+bajos en todos los segmentos más un peso considerable unitario. Nuevamente obtuvimos el mismo comportamiento que en el caso anterior.
+\end{itemize}
