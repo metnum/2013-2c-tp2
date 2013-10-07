@@ -23,13 +23,13 @@ Nuestra hipótesis basada simplemente en el instinto es que las fuerzas irían a
 
 Para el primer gráfico la fuerza mayor está en $f_{14}$ hasta que el ancho de la sección es de 5,5 (donde el ratio de ancho vs. altura es de 1,83), luego pasa a ser $f_2$.\\
 
-$f_{14}$ es la viga superior izquierda central (como el puente es simétrico y cualquier asimetría se debe a pequeños errores numéricos, el link $f_{18}$ tiene un valor idéntico).\\
+$f_{14}$ es el link superior izquierda central (como el puente es simétrico y cualquier asimetría se debe a pequeños errores numéricos, el link $f_{18}$ tiene un valor idéntico).\\
 
 Similarmente se puede realizar un análisis parecido para el segundo gráfico, donde la fuerza mayor ocurre en los links cuya posición es análoga al primer gráfico.\\
 
-Esto indica que, para puentes con secciones más altas que anchas, la vigas superiores centrales se comprimen al soportar todo el peso del puente en una forma desproporcionada.\\
+Esto indica que, para puentes con secciones más altas que anchas, los links superiores centrales se comprimen al soportar todo el peso del puente en una forma desproporcionada.\\
 
-Conforme la sección se hace más ancha, esa carga parece disminuir, hasta que la vigas que soportan más peso son las diagonales extremas, que cargan todo el peso del puente consigo.\\
+Conforme la sección se hace más ancha, esa carga parece disminuir, hasta que los links que soportan más peso son las diagonales extremas, que cargan todo el peso del puente consigo.\\
 
 Y como se puede observar la fuerza máxima disminuye, contrariamente a lo que habíamos formulado en un principio. A la luz de los resultados creemos que esto puede deberse a que a medida que el $span$ crece los angulos en los links diagonales se van achicando haciendo que al multiplicar por las fuerzas, el valor numérico de estas disminuya.\\
 
@@ -57,6 +57,34 @@ Ahora veamos que sucede cuando aumentamos el $span$ dejando todo fijo pero coloc
 \includegraphics[scale=0.8]{archivos/graficos/Fuerza-x-span-peso-central.png}\\
 \end{center}
 
-Cuando ponemos el peso equivalente a la carga distribuida uniformemente en el vértice central, notamos que el comportamiento es idéntico al experimento anterior en forma, pero la fuerza máxima soporta por un link es considerablemente mayor, y el valor del span desde el cual la fuerza máxima es soportada por las vigas diagonales exteriores es mayor (cuando $span = 600$).\\
+Cuando ponemos el peso equivalente a la carga distribuida uniformemente en el vértice central, notamos que el comportamiento es idéntico al experimento anterior en forma, pero la fuerza máxima soporta por un link es considerablemente mayor, y el valor del span desde el cual la fuerza máxima es soportada por los links diagonales exteriores es mayor (cuando $span = 600$).\\
 
-Esto se explicaría porque la distribución centralizada del peso fuerza a que las vigas centrales lo carguen sin la ayuda de las vigas inferiores más lejos del centro del puente, que ayudan a soportar el peso cuando el mismo es más uniforme.
+Esto se explicaría porque la distribución centralizada del peso fuerza a que los links centrales lo carguen sin la ayuda de los links inferiores más lejos del centro del puente, que ayudan a soportar el peso cuando el mismo es más uniforme.
+
+\subsection{Experimento 3: Cambiar la cantidad de secciones}
+
+Ahora realizamos el siguiente experimento, en el cual analizamos cómo se comportan las fuerzas de los links cuando cambiamos la cantidad de secciones en los que está subdividido.\\
+
+\begin{center}
+\includegraphics[scale=0.8]{archivos/graficos/hist_n100_C100.png}\\
+\end{center}
+
+\begin{center}
+\includegraphics[scale=0.8]{archivos/graficos/hist_n10_C100.png}\\
+\end{center}
+
+\begin{center}
+\includegraphics[scale=0.8]{archivos/graficos/hist_n100_C1000.png}\\
+\end{center}
+
+\begin{center}
+\includegraphics[scale=0.8]{archivos/graficos/hist_n10_C1000.png}\\
+\end{center}
+
+Observamos que conforme más secciones hay, las fuerzas internas de los links horizontales aumentan dramáticamente. También vemos que este aumento es consistente con el hecho de que cada sección individual se asemeja más a un rectángulo\\
+
+Debido a esto se puede ver que el link diagonal, cuanto más angosta cada sección, más se asemeja a un link vertical, y por ende aporta menos a distribuir las fuerzas internas de cada sección de manera más uniforme. El resultado sería que cada link vertical solo porta el peso de carga (que es más chico conforme más secciones hay) y recibe poca influencia de los links diagonales.\\
+
+El resultado es que los links diagonales y verticales soportan poco peso, y las horizontales soportan toda la fuerza necesaria para que el puente no se deforme.\\
+
+En ese caso los links superiores de comprimen, y las inferiores se tensionan equivalentemente.
