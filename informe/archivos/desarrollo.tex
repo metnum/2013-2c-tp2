@@ -29,10 +29,7 @@ Usamos Gauss con pivoteo parcial para poder triangular la matriz. Gracias a la i
 \subsection{Heurística}
 
 Veamos primero el pseudocódigo de lo que hicimos y luego explicaremos brevemente su motivación.
-
 \begin{verbatim}
-
-
 def heuristica(m, begin, end, n):
 
     costo, f_max = calc_costo_fuerza(m, begin, end)
@@ -57,6 +54,6 @@ def calc_costo_fuerza(m, inicio, fin)
     return costo, f_max
 \end{verbatim}
 
-Nuestro enfoque para encarar este problema puede catalogarse como una técnica de $Divide$ & $Conquer$, en la cual nos fijamos primero si el puente colapsa, si colapsa se coloca un pilar en la junta central y se llama recursivamente a la función con los dos nuevos subpuentes, esto también se aplica si el puente no se colapsa pero el costo de colocar un pilar el medio es menor que el costo actual.
+Nuestro enfoque para encarar este problema puede catalogarse como una técnica de $Divide$ $\&$ $Conquer$, en la cual nos fijamos primero si el puente colapsa, si colapsa se coloca un pilar en la junta central y se llama recursivamente a la función con los dos nuevos subpuentes, esto también se aplica si el puente no se colapsa pero el costo de colocar un pilar el medio es menor que el costo actual.
 
 Los casos base serían cuando las secciones son sólo 2 y cuando el costo de colocar un pilar supera al costo actual.
