@@ -1,0 +1,40 @@
+def calc_costo_fuerza(inicio, fin)
+	return costo, f_max
+
+def heuristica(begin, end):
+	n = N
+	f_limite = X
+	costo_pilar = C
+	h = H
+
+	costo, fmax = calc_costo_fuerza(begin, end)
+
+	if n == 2:
+		return costo, None
+	else:
+		cost1, pilares = heuristica(0, mitad(n))
+		cost2, pilares2 = heuristica(mitad(n), n)
+		costo_heuristica = cost1 + cost2 + costo_pilar
+
+	
+	if fmax > f_limite or (
+			(cost1 + cost2 + costo_pilar < costo)):  # se rompe o sale más barato dividir
+		poner_pilar(n/2)
+		return costo_heuristica, (pilares + pilares2 + pilar[n/2])
+	else:
+		return (costo, None)
+						
+	
+
+
+# Calculo si se rompe
+# Si se rompe, pongo pilar en el medio y hago heuristica en cada parte
+
+# Si no se rompe, devolver el mas optimo entre:
+# Poner pilar en el medio y el resultado de las heuristicas en las mitades
+# vs. no hacer nada
+
+# Poner el medio es:
+# elegir n/2 + n/2 % 2
+
+# Si

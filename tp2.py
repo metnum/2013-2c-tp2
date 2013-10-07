@@ -663,9 +663,6 @@ def check_final_force_results(force_i, n, span, h, param_to_increment='span'):
     print "Results for the force %s incrementing %s: %s" % (force_i, param_to_increment,[ x[0] for x in force_i_results ])
 
 
-
-
-
 import collections
 import os
 from subprocess import check_output
