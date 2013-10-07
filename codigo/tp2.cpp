@@ -463,12 +463,12 @@ int main (int argc, char * argv[]) {
 
     double tiempo_total = get_time();
 
-    cout << resultado.costo << " " << endl;
+    cout << "costo: " << resultado.costo << endl << "pilares en: ";
 
     for (set<int>::iterator i = resultado.pilares.begin(); i != resultado.pilares.end(); i++) {
        cout << *i << " ";
     }
-    // cout << endl << max_stress_seccion << " " << costo_seccion << endl;
+    cout << endl;
 
 
     // Cleanup
