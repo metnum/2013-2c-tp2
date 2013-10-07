@@ -8,4 +8,20 @@
 % metodos malogrados deben gurar en esta seccion, con una breve explicacion
 % de los motivos de estas fallas (en caso de ser conocidas)
 
-\subsection{Implementación}
+\subsection{Implementación de la matriz}
+
+\subsubsection{Estructura}
+
+Para almacenar la matriz usamos arrays los cuales sólo tenían valores válidos en las posiciones que correspondían con el número de fila representada. Es decir dada una fila-$i$, ésta sólo está seteada en las posiciones $i - p$ a $i + q + p$. Si quisiéramos acceder a posiciones por fuera de ese rango obtendríamos valores inválidos.\\
+
+Para poder indexar la matriz usamos macros de \verb|C| los cuáles dado los offsets de 0's nos permitió acceder a la posición de la matriz que nos interesaba.
+
+\subsubsection{Llenado}
+
+Dada la numeración de los links y el planteo de la matriz, se nos ocurrió hacer un estudio de las juntas para ver qué fuerzas interactuaban con cada una. Es decir, a partir de la estructura de la matriz, pensamos conveniente hacer una caracterización de las ecuaciones ya que vimos que los patrones se repetían.\\
+
+Nos quedaron en total 20 casos, que si bien fue tedioso tener que escribir el código para cada uno de los casos, nos pareció mas fácil de implementar y de $debuggear$ que el haber hecho un ciclo y llenarlo de $if's$ para cada caso.
+
+\subsection{Triangulación}
+
+Usamos Gauss con pivoteo parcial para poder triangular la matriz
