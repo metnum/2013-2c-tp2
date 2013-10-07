@@ -363,10 +363,25 @@ double costo(int n, int secciones, double h, double span, double max_stress_secc
     return ( diagonal * secciones + x * ( secciones * 2 - 2 ) + h * ( secciones - 1 ) ) * max_stress_seccion;
 }
 
+class pilar_costo {
+    public:
+        int pilar;
+        double costo;
+};
+
+struct ltstr
+{
+  bool operator()(const pilar_costo s1, const pilar_costo s2) const
+  {
+    return s1.pilar < s2.pilar;
+  }
+};
+
 class heuristica_resultado {
     public:
         double costo;
-        set<int> pilares;
+        set<pilar_costo, ltstr> pilares;
+        double primer_costo;
 };
 
 heuristica_resultado heuristica(double * m, int n, double h, double span, double * C, int inicio, int fin, double fmax, double costo_pilar) {
@@ -384,6 +399,7 @@ heuristica_resultado heuristica(double * m, int n, double h, double span, double
 
     // calculo el costo
     resultado.costo = costo(n, secciones, h, span, max_stress);
+    resultado.primer_costo = resultado.costo;
 
     if (fin - inicio == 2) {
         // sin pilares, el costo ya esta seteado
@@ -399,10 +415,17 @@ heuristica_resultado heuristica(double * m, int n, double h, double span, double
     costo_suma = seccion1.costo + seccion2.costo + costo_pilar;
 
     if (max_stress > fmax || costo_suma < resultado.costo) {
+
+        pilar_costo pilar_class;
+
+        pilar_class.pilar = pilar;
+        pilar_class.costo = seccion2.costo;
+
         resultado.costo = costo_suma;
+        resultado.primer_costo = seccion1.costo;
         resultado.pilares = seccion1.pilares;
         resultado.pilares.insert(seccion2.pilares.begin(), seccion2.pilares.end());
-        resultado.pilares.insert(pilar);
+        resultado.pilares.insert(pilar_class);
     }
     return resultado;
 
@@ -465,8 +488,15 @@ int main (int argc, char * argv[]) {
 
     cout << "costo: " << resultado.costo << endl << "pilares en: ";
 
-    for (set<int>::iterator i = resultado.pilares.begin(); i != resultado.pilares.end(); i++) {
-       cout << *i << " ";
+    for (set<pilar_costo, ltstr>::iterator i = resultado.pilares.begin(); i != resultado.pilares.end(); i++) {
+       cout << (*i).pilar << " ";
+    }
+    cout << endl;
+
+    cout << resultado.primer_costo<< " ";
+
+    for (set<pilar_costo, ltstr>::iterator i = resultado.pilares.begin(); i != resultado.pilares.end(); i++) {
+       cout << (*i).costo << " ";
     }
     cout << endl;
 
