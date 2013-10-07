@@ -1,0 +1,18 @@
+Casos de prueba para Heurística
+
+Caso de puente simple de 8 segmentos
+
+En primera instancia, una vez hechas la pruebas con puentes de
+2 y 4 segmentos para verificar que la heurística funcionaba bien para casos
+extremadamente básicos, analizamos un puente simple de 8 segmentos y redujimos
+el costo hasta ver que la heurístia considere pertinente agregar un pilar.
+
+Luego elegimos probar uno de los casos de estudio para estudiar la
+distribución de fuerzas interas del puente, con span fijo de 100,
+n de 10 y 100, y tanto pesos uniformes en el puente, como pesos
+bajos en todos los segmentos más un peso considerable unitario.
+
+-- Con n = 10 (uniformes)
+-- Con n = 100 (uniformes y unitario, probando bajar el costo de insertar pilares para ver cómo se van llenando)
+
+
