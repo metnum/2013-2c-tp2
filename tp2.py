@@ -125,6 +125,51 @@ def build_matrix(n, span, h, C):
     l_count = 4 * n - 3   # Number of links
     l_max = l_count    # Last link index
 
+    if n == 2:
+        # Fill j0.x equation
+        # h0 = f1 + f2.x
+        m[eq(0, 'x'), h0_index] = 1
+        m[eq(0, 'x'), f(1)] = -1
+        m[eq(0, 'x'), f(2)] = -x
+
+        # Fill j0.y equation
+        # v0 = f2.y
+        m[eq(0, 'y'), v0_index] = 1
+        m[eq(0, 'y'), f(2)] = -y
+
+        # Fill j1.x equation
+        # f1 = f4
+        m[eq(1, 'x'), f(1)] = 1
+        m[eq(1, 'x'), f(4)] = -1
+
+        # Fill j1.y equation
+        # -c1 = f3
+        m[eq(1, 'y'), f(3)] = 1
+        m[eq(1, 'y'), c_index] = C[0]
+
+        # Fill j2.x equation
+        # f2.x = f5.x + f6
+        m[eq(2, 'x'), f(2)] = x
+        m[eq(2, 'x'), f(5)] = -x
+
+        # Fill j2.y equation
+        # f2.y + f3 + f5.y = 0
+        m[eq(2, 'y'), f(2)] = y
+        m[eq(2, 'y'), f(3)] = 1
+        m[eq(2, 'y'), f(5)] = y
+
+        # Fill j(j_max).x equation
+        # f(l_max).x + f(l_max - 1) = 0
+        m[eq(j_max, 'x'), f(l_max)] = x
+        m[eq(j_max, 'x'), f(l_max - 1)] = 1
+
+        # Fill j(j_max).y equation
+        # v1 = f(l_max).y
+        m[eq(j_max, 'y'), v1_index] = 1
+        m[eq(j_max, 'y'), f(l_max)] = -y
+
+        return m
+        pass
     # Fill j0.x equation
     # h0 = f1 + f2.x
     m[eq(0, 'x'), h0_index] = 1
@@ -1007,7 +1052,8 @@ class NHistStudy(BaseExperimento):
 
 #from ipdb import set_trace; set_trace()
 # m = parse_input()
-m = build_matrix(6, 18, 2, [1, 1, 1, 1, 1])
+m = build_matrix(2, 4, 2, [1])
+show_matrix(m)
 dim_n = m.shape[0]
 square = m[:, 0:dim_n]  # Take the last row out
 B = m[:, dim_n]  # Last row
@@ -1018,8 +1064,8 @@ B = m[:, dim_n]  # Last row
 # show_matrix(m)
 # check_matrix(m)
 #experimento = BaseExperimento([[18, 2, 6, 1, 1, 1, 1, 1]])
-NHistStudy()
-#format_result(solve_problem(m))
+#NHistStudy()
+print (solve_problem(m))
 
 # check_final_force_results(9, 6, 100, 4)
 
