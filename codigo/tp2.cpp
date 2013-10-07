@@ -10,6 +10,7 @@
 #include <sys/time.h>
 #include <fstream>
 #include <iostream>
+#include <set>
 using namespace std;
 
 
@@ -353,7 +354,6 @@ double procesar_seccion(double * m, double h, double span, double * C, int inici
 
     triangular_matriz(m, secciones * 4);
     backwards_substitution(m, secciones * 4);
-    dibujar_diagonal(m, secciones * 4);
     return secciones;
 }
 
@@ -361,6 +361,51 @@ double costo(int n, int secciones, double h, double span, double max_stress_secc
     double x = span / n;
     double diagonal = sqrt( h * h + x * x );
     return ( diagonal * secciones + x * ( secciones * 2 - 2 ) + h * ( secciones - 1 ) ) * max_stress_seccion;
+}
+
+class heuristica_resultado {
+    public:
+        double costo;
+        set<int> pilares;
+};
+
+heuristica_resultado heuristica(double * m, int n, double h, double span, double * C, int inicio, int fin, double fmax, double costo_pilar) {
+
+    int secciones;
+    double max_stress, max_stress1, max_stress2;
+    double costo1, costo2, costo_suma;
+    heuristica_resultado resultado, seccion1, seccion2;
+
+    // proceso la matriz
+    secciones = procesar_seccion(m, h, span, C, inicio, fin);
+
+    // obtengo el maximo stress
+    max_stress = max_abs_diagonal(m, secciones * 4);
+
+    // calculo el costo
+    resultado.costo = costo(n, secciones, h, span, max_stress);
+
+    if (fin - inicio == 2) {
+        // sin pilares, el costo ya esta seteado
+        return resultado;
+    }
+
+    // donde pongo el pilar? en n/2 o n/2 +1 para que sea par
+    int pilar = inicio + (fin - inicio) / 2 + ( (fin - inicio) / 2 ) % 2;
+
+    seccion1 = heuristica(m, n, h, span, C, inicio, pilar, fmax, costo_pilar);
+    seccion2 = heuristica(m, n, h, span, C, pilar, fin, fmax, costo_pilar);
+
+    costo_suma = seccion1.costo + seccion2.costo + costo_pilar;
+
+    if (max_stress > fmax || costo_suma < resultado.costo) {
+        resultado.costo = costo_suma;
+        resultado.pilares = seccion1.pilares;
+        resultado.pilares.insert(seccion2.pilares.begin(), seccion2.pilares.end());
+        resultado.pilares.insert(pilar);
+    }
+    return resultado;
+
 }
 
 int main (int argc, char * argv[]) {
@@ -410,20 +455,21 @@ int main (int argc, char * argv[]) {
     // printf("span: %f, h: %f, n: %i, C: %f, fmax: %f\n", span, h, n, costo_pilar, fmax);
 
 
-    // proceso la matriz
-    int secciones = procesar_seccion(m, h, span, C, 0, 4);
-
-    // obtengo el maximo stress
-    double max_stress_seccion = max_abs_diagonal(m, secciones * 4);
-
-    // calculo el costo
-    double costo_seccion = costo(n, secciones, h, span, max_stress_seccion);
-
-    cout << endl << max_stress_seccion << " " << costo_seccion << endl;
-
+    heuristica_resultado resultado;
     // Empiezo a contar el tiempo
     init_time();
+
+    resultado = heuristica(m, n, h, span, C, 0, n, fmax, costo_pilar);
+
     double tiempo_total = get_time();
+
+    cout << resultado.costo << " " << endl;
+
+    for (set<int>::iterator i = resultado.pilares.begin(); i != resultado.pilares.end(); i++) {
+       cout << *i << " ";
+    }
+    // cout << endl << max_stress_seccion << " " << costo_seccion << endl;
+
 
     // Cleanup
     file.close();
