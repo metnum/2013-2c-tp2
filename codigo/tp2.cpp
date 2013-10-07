@@ -103,6 +103,51 @@ void armar_matriz(double * m, int n, double h, double span, double * C) {
     int l_count = 4 * n - 3;   // Number of links
     int l_max = l_count;    // Last link index
 
+    if (n == 2) {
+        // Fill j0.x equation
+        // h0 = f1 + f2.x
+        pos(m, eq(0, "x"), h0_index) = 1;
+        pos(m, eq(0, "x"), f(1)) = -1;
+        pos(m, eq(0, "x"), f(2)) = -x;
+
+        // Fill j0.y equation
+        // v0 = f2.y
+        pos(m, eq(0, "y"), v0_index) = 1;
+        pos(m, eq(0, "y"), f(2)) = -y;
+
+        // Fill j1.x equation
+        // f1 = f4
+        pos(m, eq(1, "x"), f(1)) = 1;
+        pos(m, eq(1, "x"), f(4)) = -1;
+
+        // Fill j1.y equation
+        // -c1 = f3
+        pos(m, eq(1, "y"), f(3)) = 1;
+        posc(m, eq(1, "y")) = C[0];
+
+        // Fill j2.x equation
+        // f2.x = f5.x + f6
+        pos(m, eq(2, "x"), f(2)) = x;
+        pos(m, eq(2, "x"), f(5)) = -x;
+
+        // Fill j2.y equation
+        // f2.y + f3 + f5.y = 0
+        pos(m, eq(2, "y"), f(2)) = y;
+        pos(m, eq(2, "y"), f(3)) = 1;
+        pos(m, eq(2, "y"), f(5)) = y;
+
+        // Fill j(j_max).x equation
+        // f(l_max).x + f(l_max - 1) = 0
+        pos(m, eq(j_max, "x"), f(l_max)) = x;
+        pos(m, eq(j_max, "x"), f(l_max - 1)) = 1;
+
+        // Fill j(j_max).y equation
+        // v1 = f(l_max).y
+        pos(m, eq(j_max, "y"), v1_index) = 1;
+        pos(m, eq(j_max, "y"), f(l_max)) = -y;
+        return;
+    }
+
     // Fill j0.x equation
     // h0 = f1 + f2.x
     pos(m, eq(0, "x"), h0_index) = 1;
