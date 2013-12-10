@@ -120,8 +120,7 @@ class SpanStudyExp1(BaseExperimento):
     h = 3
 
     def max_force(self, prog_args, output):
-        lines = [abs(float(line)) for line in output.split('\n')[1: -1]]
-        return max(lines)
+        return float(output.split()[0])
 
     def __init__(self):
         executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
@@ -145,15 +144,7 @@ class SpanStudyExp2(BaseExperimento):
     h = 3
 
     def max_force(self, prog_args, output):
-        lines = [abs(float(line)) for line in output.split('\n')[1: -1]]
-        max_force = 0
-        max_pos = -1
-        for lineno, line in enumerate(lines):
-            if line > max_force:
-                max_force = line
-                max_pos = lineno
-
-        return force_position(max_pos, len(lines))
+        return float(output.split()[0])
 
     def __init__(self):
         executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
@@ -177,19 +168,7 @@ class AsymmetricWeightStudy(BaseExperimento):
     h = 3
 
     def max_force(self, prog_args, output):
-        lines = [abs(float(line)) for line in output.split('\n')[1: -1]]
-        return max(lines)
-
-    def max_force_name(self, prog_args, output):
-        lines = [abs(float(line)) for line in output.split('\n')[1: -1]]
-        max_force = 0
-        max_pos = -1
-        for lineno, line in enumerate(lines):
-            if line > max_force:
-                max_force = line
-                max_pos = lineno
-
-        return force_position(max_pos, len(lines))
+        return float(output.split()[0])
 
     def __init__(self):
         executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
@@ -203,9 +182,10 @@ class AsymmetricWeightStudy(BaseExperimento):
                 span, self.h, self.n] + self.C]
             output = check_output(prog_args)
             self.resultados.append(output)
-            print "%s, %s, %s, %s, %s" % (
-                span, (span/self.n), ((span/self.n)/self.h), self.max_force(prog_args, output),
-                self.max_force_name(prog_args, output))
+            print "%s, %s, %s, %s" % (
+                span, (span/self.n), ((span/self.n)/self.h), self.max_force(prog_args, output))
+
+
 
 class SpanHistogramStudy(BaseExperimento):
     from matplotlib import pyplot as plt
@@ -221,13 +201,17 @@ class SpanHistogramStudy(BaseExperimento):
 
         span = 200
         prog_args = ["%s" % arg for arg in [executable] + [
-            span, self.h, self.n] + self.C]
+            'display-forces', span, self.h, self.n] + self.C]
         output = check_output(prog_args)
         self.resultados.append(output)
         print "%s" % (self.max_force(prog_args, output))
 
-        lines = [float(line) for line in output.split('\n')[1: -1]]
-        n, bins, patches = plt.hist(lines, range(-100, 100, 20), histtype='stepfilled')
+        output = output.split('\n')
+        cost = output[0]
+        forces = output[1:]
+        lines = [float(line) for line in forces if line]
+        bins = range(-800, 800, 50)
+        n, bins, patches = plt.hist(lines, bins, histtype='bar')
         plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         plt.autoscale(True, 'both', False)
         plt.title(u"Distribución de fuerzas con Span=200, n=20, h=3, Ci = 5")
@@ -241,13 +225,17 @@ class SpanHistogramStudy(BaseExperimento):
         span = 400
 
         prog_args = ["%s" % arg for arg in [executable] + [
-            span, self.h, self.n] + self.C]
+            'display-forces', span, self.h, self.n] + self.C]
         output = check_output(prog_args)
         self.resultados.append(output)
         print "%s" % (self.max_force(prog_args, output))
 
-        lines = [float(line) for line in output.split('\n')[1: -1]]
-        n, bins, patches = plt.hist(lines, range(-100, 100, 20), histtype='stepfilled')
+        output = output.split('\n')
+        cost = output[0]
+        forces = output[1:]
+        lines = [float(line) for line in forces if line]
+        bins = range(-1600,1600, 100)
+        n, bins, patches = plt.hist(lines, bins, histtype='bar')
         plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         plt.autoscale(True, 'both', False)
         plt.title(u"Distribución de fuerzas con Span=400, n=20, h=3, Ci = 5")
@@ -267,21 +255,7 @@ class SpanCentralWeightStudy(BaseExperimento):
     h = 3
 
     def max_force(self, prog_args, output):
-        span = float(prog_args[1])
-        lines = [abs(float(line)) for line in output.split('\n')[1: -1]]
-        return max(lines)
-
-    def max_force_name(self, prog_args, output):
-        lines = [abs(float(line)) for line in output.split('\n')[1: -1]]
-        max_force = 0
-        max_pos = -1
-        for lineno, line in enumerate(lines):
-            if line > max_force:
-                max_force = line
-                max_pos = lineno
-
-        return force_position(max_pos, len(lines))
-
+        return float(output.split()[0])
 
     def __init__(self):
         executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
@@ -295,9 +269,8 @@ class SpanCentralWeightStudy(BaseExperimento):
                 span, self.h, self.n] + self.C]
             output = check_output(prog_args)
             self.resultados.append(output)
-            print "%s, %s, %s, %s, %s " % (
-                span, (span/self.n), ((span/self.n)/self.h), self.max_force(prog_args, output),
-                self.max_force_name(prog_args, output))
+            print "%s, %s, %s, %s " % (
+                span, (span/self.n), ((span/self.n)/self.h), self.max_force(prog_args, output))
 
 
 class NHistStudy(BaseExperimento):
@@ -306,7 +279,7 @@ class NHistStudy(BaseExperimento):
     h = 3.0
 
     def max_force(self, prog_args, output):
-        lines = [abs(float(line)) for line in output.split('\n')[1: -1]]
+        lines = [abs(float(line)) for line in output.split('\n')[1: -1] if line]
         return max(lines)
 
     def max_force_name(self, prog_args, output):
@@ -331,15 +304,20 @@ class NHistStudy(BaseExperimento):
         total_c = 1000.0
         C = [total_c/(n - 1)] * int(n - 1)
         prog_args = ["%s" % arg for arg in [executable] + [
-            self.span, self.h, n] + C]
+            'display-forces', self.span, self.h, n] + C]
         output = check_output(prog_args)
         self.resultados.append(output)
+        from ipdb import set_trace; set_trace()
         print "%s, %s, %s, %s, %s" % (
             self.span, (self.span/n), ((self.span/n)/self.h), self.max_force(prog_args, output),
             self.max_force_name(prog_args, output))
 
-        lines = [float(line) for line in output.split('\n')[1: -1]]
-        x, bins, patches = plt.hist(lines, range(-1000, 1000, 200), histtype='stepfilled')
+        output = output.split('\n')
+        cost = output[0]
+        forces = output[1:]
+        lines = [float(line) for line in forces if line]
+
+        x, bins, patches = plt.hist(lines, range(-1000, 1000, 200), histtype='bar')
         plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         plt.autoscale(True, 'both', False)
         plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
@@ -355,14 +333,17 @@ class NHistStudy(BaseExperimento):
 
         C = [total_c/(n - 1)] * int(n - 1)
         prog_args = ["%s" % arg for arg in [executable] + [
-            self.span, self.h, n] + C]
+            'display-forces', self.span, self.h, n] + C]
         output = check_output(prog_args)
         self.resultados.append(output)
         print "%s, %s, %s, %s, %s" % (
             self.span, (self.span/n), ((self.span/n)/self.h), self.max_force(prog_args, output),
             self.max_force_name(prog_args, output))
 
-        lines = [float(line) for line in output.split('\n')[1: -1]]
+        output = output.split('\n')
+        cost = output[0]
+        forces = output[1:]
+        lines = [float(line) for line in forces if line]
         x, bins, patches = plt.hist(lines, range(-100, 100, 20), histtype='stepfilled')
         plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         plt.autoscale(True, 'both', False)
@@ -423,3 +404,23 @@ class NHistStudy(BaseExperimento):
         plt.savefig('informe/archivos/graficos/hist_n' + str(n) + '_C100.png')
 
         plt.show()
+
+if __name__ == '__main__':
+    # Fuerza maxima por span de puente
+    # n=8, h=3, Ci=5
+    #print "Study max span n=8, h=3, Ci=5"
+    #study = SpanStudyExp1()
+
+    #print "Study max span n=20, h=3, Ci=5"
+
+    # Fueza máxima por span de puente
+    # n=20, h=3, Ci=5
+    #study = SpanStudyExp2()
+
+    # Hist distribución de fuerzas span=200,n=20, h=3, Ci=5,
+    #study = SpanHistogramStudy()
+
+    # Fuerza máxima carga central, span variable
+    #study = SpanCentralWeightStudy()
+
+    study = NHistStudy()

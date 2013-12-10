@@ -119,9 +119,6 @@ def build_matrix(n, span, h, C):
     y = link_y / link_diag
     x = link_x / link_diag
 
-    from ipdb import set_trace; set_trace()
-
-
     ### Quantities
     j_count = 2 * n       # Number of joints
     j_max = j_count - 1   # Last joint index
@@ -368,7 +365,7 @@ def parse_input():
     for item in xrange(n - 1):
         C[item] = (float(data.readline()))
 
-    return build_matrix(n, span, h, C)
+    return build_matrix(n, span, h, C), n, span, h
 
 
 def check_final_force_results(force_i, n, span, h, param_to_increment='span'):
@@ -396,20 +393,21 @@ def check_final_force_results(force_i, n, span, h, param_to_increment='span'):
 def get_max_stress(m):
     pass
 
-def compute_cost(m, sections, h, span, max_stress):
-    x = span/h
+def compute_cost(sections, h, span, solution):
+    x = span / sections
     diagonal = math.sqrt(h ** 2 + x ** 2)
+    max_stress = max([abs(e) for e in solution.squeeze()])
+    print "Max stress %s" % max_stress
     return (diagonal * sections + x * (2 * sections - 2) + h * (sections - 1)) * max_stress
 
 
 if __name__ == '__main__':
-    m = parse_input()
+    m, n, span, h = parse_input()
     #m = build_matrix(2, 4, 2, [1])
     #show_matrix(m)
     dim_n = m.shape[0]
     square = m[:, 0:dim_n]  # Take the last row out
     B = m[:, dim_n]  # Last row
-    # from ipdb import set_trace; set_trace()
     #show_matrix(solution)
     #dim_n = np.shape(m)[0]
     # show_matrix(m)
@@ -422,10 +420,12 @@ if __name__ == '__main__':
 
 
     from experiments import check_matrix, format_result
-    check_matrix(m)
+    #check_matrix(m)
     #print total_cost
     print "Results:"
     format_result(result)
+
+    print "Cost: %s" % (compute_cost(n, h, span, result))
 
 # check_final_force_results(9, 6, 100, 4)
 

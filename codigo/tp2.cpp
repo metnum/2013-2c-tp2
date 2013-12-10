@@ -94,8 +94,8 @@ void armar_matriz(double * m, int n, double h, double span, double * C) {
     double link_x = span / n;
     double link_y = h;
     double link_diag = pow(pow(link_x, 2) + pow(link_y, 2), 0.5);
-    double x = link_y / link_diag;
-    double y = link_x / link_diag;
+    double x = link_x / link_diag;
+    double y = link_y / link_diag;
 
     int k;  // iterator
     ////// Quantities
@@ -382,9 +382,11 @@ class heuristica_resultado {
         double costo;
         set<pilar_costo, ltstr> pilares;
         double primer_costo;
+
 };
 
-heuristica_resultado heuristica(double * m, int n, double h, double span, double * C, int inicio, int fin, double fmax, double costo_pilar) {
+heuristica_resultado heuristica(double * m, int n, double h, double span, double * C,
+        int inicio, int fin, double fmax, double costo_pilar, bool benchmark_mode) {
 
     int secciones;
     double max_stress, max_stress1, max_stress2;
@@ -397,9 +399,15 @@ heuristica_resultado heuristica(double * m, int n, double h, double span, double
     // obtengo el maximo stress
     max_stress = max_abs_diagonal(m, secciones * 4);
 
+    if (benchmark_mode) cout << max_stress << endl;
+
+
     // calculo el costo
     resultado.costo = costo(n, secciones, h, span, max_stress);
     resultado.primer_costo = resultado.costo;
+
+    // No hacer heuristica si estamos en modo benchmark
+    if (benchmark_mode) return resultado;
 
     if (fin - inicio == 2) {
         // sin pilares, el costo ya esta seteado
@@ -409,8 +417,8 @@ heuristica_resultado heuristica(double * m, int n, double h, double span, double
     // donde pongo el pilar? en n/2 o n/2 +1 para que sea par
     int pilar = inicio + (fin - inicio) / 2 + ( (fin - inicio) / 2 ) % 2;
 
-    seccion1 = heuristica(m, n, h, span, C, inicio, pilar, fmax, costo_pilar);
-    seccion2 = heuristica(m, n, h, span, C, pilar, fin, fmax, costo_pilar);
+    seccion1 = heuristica(m, n, h, span, C, inicio, pilar, fmax, costo_pilar, benchmark_mode);
+    seccion2 = heuristica(m, n, h, span, C, pilar, fin, fmax, costo_pilar, benchmark_mode);
 
     costo_suma = seccion1.costo + seccion2.costo + costo_pilar;
 
@@ -432,19 +440,10 @@ heuristica_resultado heuristica(double * m, int n, double h, double span, double
 }
 
 int main (int argc, char * argv[]) {
-
-    // Todos los valores de entrada deben estar
-    if (argc < 2 ) {
-        cout << "Ejectuar ./tp2 <filename>" << endl;
-        exit(-1);
-    }
-
-    // Leer de archivo y armar todo
-    ifstream file (argv[1]);
-    if (!file.is_open()) {
-        cout << "No puedo abrir el archivo!!" << endl;
-            return 1;
-    }
+    bool do_benchmark = false;
+    bool display_forces = false;
+    double * m;
+    double * C;
 
     double span;
     double h;
@@ -452,26 +451,75 @@ int main (int argc, char * argv[]) {
     double costo_pilar;
     double fmax;
 
-    file >> span;
-    file >> h;
-    file >> n;
-
-    // Agarrar memoria para la matriz banda y las cargas
-    double * m = (double *) malloc(sizeof(double) * banda * 4 * n);  // 4n ecuaciones *  (banda + cargas Ci)
-    double * C = (double *) malloc(sizeof(double) * (n - 1));  // vector de cargas iniciales
-
-    if (m == NULL){
-        cout << "ERROR: me quede sin memoria :( snif...\n" << endl;
-        return 1;
+    // Todos los valores de entrada deben estar
+    if (argc < 2 ) {
+        cout << "Ejectuar ./tp2 <filename>| [string-compare] span n h C..." << endl;
+        exit(-1);
     }
 
-    // Lleno vector de cargas
-    for(int i = 0; i < n - 1; i++) {
-        file >> C[i];
-    }
+    if (argc == 2) {
+        // Leer de archivo y armar todo
+        ifstream file (argv[1]);
+        if (!file.is_open()) {
+            cout << "No puedo abrir el archivo!!" << endl;
+                return 1;
+        }
 
-    file >> costo_pilar;
-    file >> fmax;
+        file >> span;
+        file >> h;
+        file >> n;
+
+        // Agarrar memoria para la matriz banda y las cargas
+        m = (double *) malloc(sizeof(double) * banda * 4 * n);  // 4n ecuaciones *  (banda + cargas Ci)
+        C = (double *) malloc(sizeof(double) * (n - 1));  // vector de cargas iniciales
+
+        if (m == NULL){
+            cout << "ERROR: me quede sin memoria :( snif...\n" << endl;
+            return 1;
+        }
+
+        // Lleno vector de cargas
+        for(int i = 0; i < n - 1; i++) {
+            file >> C[i];
+        }
+
+        file >> costo_pilar;
+        file >> fmax;
+
+        file.close();
+    } else {
+        // Para realizar pruebas
+        int i; // Offset de args para cargar datos
+        do_benchmark = true;
+
+        if(strcmp(argv[1], "display-forces\n") == 0) {
+            display_forces = true;
+            span = atof(argv[2]);
+            h = atof(argv[3]);
+            n = atof(argv[4]);
+            i = 5;
+        } else {
+            span = atof(argv[1]);
+            h = atof(argv[2]);
+            n = atof(argv[3]);
+            i = 4;
+        }
+
+        m = (double *) malloc(sizeof(double) * banda * 4 * n);  // 4n ecuaciones *  (banda + cargas Ci)
+        C = (double *) malloc(sizeof(double) * (n - 1));  // vector de cargas iniciales
+
+        if (m == NULL){
+            cout << "ERROR: me quede sin memoria :( snif...\n" << endl;
+            return 1;
+        }
+
+        for(int j = 0; j < n - 1; ++j) {
+            C[j] = atof(argv[j + i]);
+        }
+
+        fmax = 10000000;
+        costo_pilar = 10000000;
+    }
 
     // Termine de leer del archivo
 
@@ -482,27 +530,27 @@ int main (int argc, char * argv[]) {
     // Empiezo a contar el tiempo
     init_time();
 
-    resultado = heuristica(m, n, h, span, C, 0, n, fmax, costo_pilar);
+    resultado = heuristica(m, n, h, span, C, 0, n, fmax, costo_pilar, do_benchmark);
 
     double tiempo_total = get_time();
 
-    cout << "costo: " << resultado.costo << endl << "pilares en: ";
+    if (display_forces) {
+        dibujar_diagonal(m, n);
+    } else {
+        for (set<pilar_costo, ltstr>::iterator i = resultado.pilares.begin(); i != resultado.pilares.end(); i++) {
+        cout << (*i).pilar << " ";
+        }
+        cout << endl;
 
-    for (set<pilar_costo, ltstr>::iterator i = resultado.pilares.begin(); i != resultado.pilares.end(); i++) {
-       cout << (*i).pilar << " ";
+        cout << resultado.primer_costo<< " ";
+
+        for (set<pilar_costo, ltstr>::iterator i = resultado.pilares.begin(); i != resultado.pilares.end(); i++) {
+        cout << (*i).costo << " ";
+        }
+        cout << endl;
     }
-    cout << endl;
-
-    cout << resultado.primer_costo<< " ";
-
-    for (set<pilar_costo, ltstr>::iterator i = resultado.pilares.begin(); i != resultado.pilares.end(); i++) {
-       cout << (*i).costo << " ";
-    }
-    cout << endl;
-
 
     // Cleanup
-    file.close();
     free(m);
     free(C);
     return 0;
