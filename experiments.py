@@ -307,7 +307,6 @@ class NHistStudy(BaseExperimento):
             'display-forces', self.span, self.h, n] + C]
         output = check_output(prog_args)
         self.resultados.append(output)
-        from ipdb import set_trace; set_trace()
         print "%s, %s, %s, %s, %s" % (
             self.span, (self.span/n), ((self.span/n)/self.h), self.max_force(prog_args, output),
             self.max_force_name(prog_args, output))
@@ -317,7 +316,8 @@ class NHistStudy(BaseExperimento):
         forces = output[1:]
         lines = [float(line) for line in forces if line]
 
-        x, bins, patches = plt.hist(lines, range(-1000, 1000, 200), histtype='bar')
+        bins = range(-1000, 1000, 200)
+        x, bins, patches = plt.hist(lines, histtype='bar')
         plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         plt.autoscale(True, 'both', False)
         plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
@@ -344,7 +344,8 @@ class NHistStudy(BaseExperimento):
         cost = output[0]
         forces = output[1:]
         lines = [float(line) for line in forces if line]
-        x, bins, patches = plt.hist(lines, range(-100, 100, 20), histtype='stepfilled')
+        bins = range(-100, 100, 20)
+        x, bins, patches = plt.hist(lines, histtype='bar')
         plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         plt.autoscale(True, 'both', False)
         plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
@@ -361,7 +362,7 @@ class NHistStudy(BaseExperimento):
         total_c = 1000.0
         C = [total_c/(n - 1)] * int(n - 1)
         prog_args = ["%s" % arg for arg in [executable] + [
-            self.span, self.h, n] + C]
+            'display-forces', self.span, self.h, n] + C]
         output = check_output(prog_args)
         self.resultados.append(output)
         print "%s, %s, %s, %s, %s" % (
@@ -369,7 +370,8 @@ class NHistStudy(BaseExperimento):
             self.max_force_name(prog_args, output))
 
         lines = [float(line) for line in output.split('\n')[1: -1]]
-        x, bins, patches = plt.hist(lines, range(-40000, 40000, 5000), histtype='stepfilled')
+        bins = range(-40000, 40000, 5000),
+        x, bins, patches = plt.hist(lines, histtype='bar')
         plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         plt.autoscale(True, 'both', False)
         plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
@@ -385,7 +387,7 @@ class NHistStudy(BaseExperimento):
 
         C = [total_c/(n - 1)] * int(n - 1)
         prog_args = ["%s" % arg for arg in [executable] + [
-            self.span, self.h, n] + C]
+            'display-forces', self.span, self.h, n] + C]
         output = check_output(prog_args)
         self.resultados.append(output)
         print "%s, %s, %s, %s, %s" % (
@@ -393,7 +395,8 @@ class NHistStudy(BaseExperimento):
             self.max_force_name(prog_args, output))
 
         lines = [float(line) for line in output.split('\n')[1: -1]]
-        x, bins, patches = plt.hist(lines, range(-4000, 4000, 200), histtype='stepfilled')
+        bins = range(-4000, 4000, 200)
+        x, bins, patches = plt.hist(lines, histtype='bar')
         plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         plt.autoscale(True, 'both', False)
         plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
@@ -418,7 +421,7 @@ if __name__ == '__main__':
     #study = SpanStudyExp2()
 
     # Hist distribución de fuerzas span=200,n=20, h=3, Ci=5,
-    #study = SpanHistogramStudy()
+    study = SpanHistogramStudy()
 
     # Fuerza máxima carga central, span variable
     #study = SpanCentralWeightStudy()
