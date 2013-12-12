@@ -89,6 +89,7 @@ def format_result(result):
 
 class BaseExperimento():
     # Executable args: span h n cargas...
+    executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
     experiments = [] # List of experiments to run
 
     def max_force(self, prog_args, output):
@@ -103,11 +104,10 @@ class BaseExperimento():
 
     def __init__(self, experiments):
         self.experiments = experiments
-        executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
         self.resultados = []
 
         for args in self.experiments:
-            prog_args = ["%s" % arg for arg in [executable] + args]
+            prog_args = ["%s" % arg for arg in [self.executable] + args]
             output = check_output(prog_args)
             self.resultados.append(output)
             self.print_forces(prog_args, output)
@@ -123,18 +123,33 @@ class SpanStudyExp1(BaseExperimento):
         return float(output.split()[0])
 
     def __init__(self):
-        executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
+        # from 0.5 to 2 * 9 * n * h
+        spans = [float(v)/2 for v in xrange(self.n, 2 * 9 * self.n * self.h, self.n)]
 
+        print ("Span, section width, section width / h, Max force")
+        from ipdb import set_trace; set_trace()
+        for span in spans:
+            prog_args = ["%s" % arg for arg in [self.executable] + [
+                span, self.h, self.n] + self.C]
+            output = check_output(prog_args)
+            self.resultados.append(output)
+            print "%s, %s, %s, %s" % (span, (span/self.n), ((span/self.n)/self.h), self.max_force(prog_args, output))
+
+
+class SpanStudyDisplayForces(SpanStudyExp1):
+    def __init__(self):
         # from 0.5 to 2 * 9 * n * h
         spans = [float(v)/2 for v in xrange(self.n, 2 * 9 * self.n * self.h, self.n)]
 
         print ("Span, section width, section width / h, Max force")
         for span in spans:
-            prog_args = ["%s" % arg for arg in [executable] + [
-                span, self.h, self.n] + self.C]
+            prog_args = ["%s" % arg for arg in [self.executable] + [
+                'display-forces', span, self.h, self.n] + self.C]
+            print span, self.h, self.n
             output = check_output(prog_args)
             self.resultados.append(output)
-            print "%s, %s, %s, %s" % (span, (span/self.n), ((span/self.n)/self.h), self.max_force(prog_args, output))
+            print "%s" % output
+            print "----"
 
 
 class SpanStudyExp2(BaseExperimento):
@@ -147,14 +162,12 @@ class SpanStudyExp2(BaseExperimento):
         return float(output.split()[0])
 
     def __init__(self):
-        executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
-
         # from 0.5 to 2 * 9 * n * h
         spans = [float(v)/2 for v in xrange(self.n, 2 * 9 * self.n * self.h, self.n)]
 
         print ("Span, section width, section width / h, Max force Link")
         for span in spans:
-            prog_args = ["%s" % arg for arg in [executable] + [
+            prog_args = ["%s" % arg for arg in [self.executable] + [
                 span, self.h, self.n] + self.C]
             output = check_output(prog_args)
             self.resultados.append(output)
@@ -171,20 +184,100 @@ class AsymmetricWeightStudy(BaseExperimento):
         return float(output.split()[0])
 
     def __init__(self):
-        executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
-
         # from 0.5 to 2 * 9 * n * h
         spans = [float(v)/2 for v in xrange(self.n, 2 * 9 * self.n * self.h, self.n)]
 
         print ("Span, section width, section width / h, Max force Link")
         for span in spans:
-            prog_args = ["%s" % arg for arg in [executable] + [
+            prog_args = ["%s" % arg for arg in [self.executable] + [
                 span, self.h, self.n] + self.C]
             output = check_output(prog_args)
             self.resultados.append(output)
             print "%s, %s, %s, %s" % (
                 span, (span/self.n), ((span/self.n)/self.h), self.max_force(prog_args, output))
 
+
+class AsymmetricDisplayWeightStudy(AsymmetricWeightStudy):
+    def __init__(self):
+        # from 0.5 to 2 * 9 * n * h
+        spans = [float(v)/2 for v in xrange(self.n, 2 * 9 * self.n * self.h, self.n)]
+
+        print ("Span, section width, section width / h, Max force Link")
+        for span in spans:
+            prog_args = ["%s" % arg for arg in [self.executable] + [
+                'display-forces', span, self.h, self.n] + self.C]
+            output = check_output(prog_args)
+            self.resultados.append(output)
+            print "%s" % output
+            print "----"
+
+
+class AsymmetricWeightHist(AsymmetricWeightStudy):
+    def get_force_type(self, index):
+        if index == 0:
+            return 'H0'
+        elif index == 1:
+            return 'V0'
+        elif index == 2:
+            return 'HL'
+        elif index == 3:
+            return 'D'
+        elif index % 4 == 0:
+            return 'V'
+        elif index % 4 == 1:
+            return 'HL'
+        elif index % 4 == 2:
+            return 'D'
+        elif index % 4 == 3:
+            return 'HU'
+
+    def make_buckets(self, output):
+        buckets = {
+            'H0': [],
+            'V0': [],
+            'D': [],
+            'V': [],
+            'HL': [],
+            'HU': []
+        }
+
+        lines = output.split('\n')
+        for pos, force in enumerate(lines[1:len(lines) - 1]):
+            buckets[self.get_force_type(pos)].append(float(force))
+        return buckets
+
+    def make_forces_hist(self, buckets):
+        bins = range(-500, 500, 50)
+        n, bins, patches = plt.hist(
+            [buckets['H0'],
+             buckets['V0'] * 2,
+             buckets['D'],
+             buckets['V'],
+             buckets['HL'],
+             buckets['HU']],
+            bins=20, histtype='bar',
+            stacked=True,
+            color=['black', 'white', 'red', 'blue', 'green', 'yellow'],
+            label=['H0', 'Soportes', 'Diagonales', 'Verticales', 'Horizonal Superior', 'Horizonal Inferior'])
+        plt.xlabel("Fuerza en viga")
+        plt.ylabel("Cantidad")
+        plt.grid(True)
+        plt.legend()
+        plt.savefig('informe/archivos/graficos/hist_asim.png')
+        plt.show()
+
+
+    def __init__(self):
+        spans = (60,)
+
+        for span in spans:
+            prog_args = ["%s" % arg for arg in [self.executable] + [
+                'display-forces', span, self.h, self.n] + self.C]
+            output = check_output(prog_args)
+            self.resultados.append(output)
+            print "%s" % output
+            buckets = self.make_buckets(output)
+            self.make_forces_hist(buckets)
 
 
 class SpanHistogramStudy(BaseExperimento):
@@ -194,29 +287,77 @@ class SpanHistogramStudy(BaseExperimento):
     n = 20
     h = 3
 
-    def __init__(self):
-        executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
 
+    def get_force_type(self, index):
+        if index == 0:
+            return 'H0'
+        elif index == 1:
+            return 'V0'
+        elif index == 2:
+            return 'HL'
+        elif index == 3:
+            return 'D'
+        elif index % 4 == 0:
+            return 'V'
+        elif index % 4 == 1:
+            return 'HL'
+        elif index % 4 == 2:
+            return 'D'
+        elif index % 4 == 3:
+            return 'HU'
+
+    def make_buckets(self, output):
+        buckets = {
+            'H0': [],
+            'V0': [],
+            'D': [],
+            'V': [],
+            'HL': [],
+            'HU': []
+        }
+
+        lines = output.split('\n')
+        for pos, force in enumerate(lines[1:len(lines) - 1]):
+            buckets[self.get_force_type(pos)].append(float(force))
+        return buckets
+
+    def __init__(self):
         # from 0.5 to 2 * 9 * n * h
 
         span = 200
-        prog_args = ["%s" % arg for arg in [executable] + [
+        prog_args = ["%s" % arg for arg in [self.executable] + [
             'display-forces', span, self.h, self.n] + self.C]
         output = check_output(prog_args)
         self.resultados.append(output)
         print "%s" % (self.max_force(prog_args, output))
 
-        output = output.split('\n')
-        cost = output[0]
-        forces = output[1:]
-        lines = [float(line) for line in forces if line]
-        bins = range(-800, 800, 50)
-        n, bins, patches = plt.hist(lines, bins, histtype='bar')
-        plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
-        plt.autoscale(True, 'both', False)
-        plt.title(u"Distribución de fuerzas con Span=200, n=20, h=3, Ci = 5")
+        #output = output.split('\n')
+        #cost = output[0]
+        #forces = output[1:]
+        #lines = [float(line) for line in forces if line]
+        #bins = range(-800, 800, 50)
+
+        buckets = self.make_buckets(output)
+        n, bins, patches = plt.hist(
+            [buckets['H0'],
+             buckets['V0'] * 2,
+             buckets['D'],
+             buckets['V'],
+             buckets['HL'],
+             buckets['HU']],
+            10, histtype='bar',
+            stacked=True,
+            color=['black', 'white', 'red', 'blue', 'green', 'yellow'],
+            label=['H0', 'Soportes', 'Diagonales', 'Verticales', 'Horizonal Superior', 'Horizonal Inferior'])
         plt.xlabel("Fuerza en viga")
         plt.ylabel("Cantidad")
+
+        #n, bins, patches = plt.hist(lines, bins, histtype='bar')
+        #plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
+        plt.autoscale(True, 'both', False)
+        plt.title(u"Distribución de fuerzas con Span=200, n=20, h=3, Ci = 5")
+        #plt.xlabel("Fuerza en viga")
+        #plt.ylabel("Cantidad")
         plt.grid(True)
         plt.legend()
         plt.savefig('informe/archivos/graficos/hist_200.png')
@@ -224,21 +365,34 @@ class SpanHistogramStudy(BaseExperimento):
         plt.show()
         span = 400
 
-        prog_args = ["%s" % arg for arg in [executable] + [
+        prog_args = ["%s" % arg for arg in [self.executable] + [
             'display-forces', span, self.h, self.n] + self.C]
         output = check_output(prog_args)
         self.resultados.append(output)
         print "%s" % (self.max_force(prog_args, output))
 
-        output = output.split('\n')
-        cost = output[0]
-        forces = output[1:]
-        lines = [float(line) for line in forces if line]
+        #output = output.split('\n')
+        #cost = output[0]
+        #forces = output[1:]
+        #lines = [float(line) for line in forces if line]
         bins = range(-1600,1600, 100)
-        n, bins, patches = plt.hist(lines, bins, histtype='bar')
-        plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
+
+        buckets = self.make_buckets(output)
+        n, bins, patches = plt.hist(
+            [buckets['H0'],
+             buckets['V0'] * 2,
+             buckets['D'],
+             buckets['V'],
+             buckets['HL'],
+             buckets['HU']],
+            10, histtype='bar',
+            stacked=True,
+            color=['black', 'white', 'red', 'blue', 'green', 'yellow'],
+            label=['H0', 'Soportes', 'Diagonales', 'Verticales', 'Horizonal Superior', 'Horizonal Inferior'])
+        #n, bins, patches = plt.hist(lines, bins, histtype='bar')
+        #plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         plt.autoscale(True, 'both', False)
-        plt.title(u"Distribución de fuerzas con Span=400, n=20, h=3, Ci = 5")
+        #plt.title(u"Distribución de fuerzas con Span=400, n=20, h=3, Ci = 5")
         plt.xlabel("Fuerza en viga")
         plt.ylabel("Cantidad")
         plt.grid(True)
@@ -258,14 +412,12 @@ class SpanCentralWeightStudy(BaseExperimento):
         return float(output.split()[0])
 
     def __init__(self):
-        executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
-
         # from 0.5 to 2 * 9 * n * h
         spans = [float(v)/2 for v in xrange(self.n, 2 * 15 * self.n * self.h, self.n)]
 
         print ("Span, section width, section width / h, Max force Link")
         for span in spans:
-            prog_args = ["%s" % arg for arg in [executable] + [
+            prog_args = ["%s" % arg for arg in [self.executable] + [
                 span, self.h, self.n] + self.C]
             output = check_output(prog_args)
             self.resultados.append(output)
@@ -277,6 +429,39 @@ class NHistStudy(BaseExperimento):
     resultados = []
     span = 100.0
     h = 3.0
+
+    def get_force_type(self, index):
+        if index == 0:
+            return 'H0'
+        elif index == 1:
+            return 'V0'
+        elif index == 2:
+            return 'HL'
+        elif index == 3:
+            return 'D'
+        elif index % 4 == 0:
+            return 'V'
+        elif index % 4 == 1:
+            return 'HL'
+        elif index % 4 == 2:
+            return 'D'
+        elif index % 4 == 3:
+            return 'HU'
+
+    def make_buckets(self, output):
+        buckets = {
+            'H0': [],
+            'V0': [],
+            'D': [],
+            'V': [],
+            'HL': [],
+            'HU': []
+        }
+
+        lines = output.split('\n')
+        for pos, force in enumerate(lines[1:len(lines) - 1]):
+            buckets[self.get_force_type(pos)].append(float(force))
+        return buckets
 
     def max_force(self, prog_args, output):
         lines = [abs(float(line)) for line in output.split('\n')[1: -1] if line]
@@ -294,8 +479,6 @@ class NHistStudy(BaseExperimento):
         return force_position(max_pos, len(lines))
 
     def __init__(self):
-        executable = os.path.join(os.getcwd(), "codigo/bin/tp2")
-
         # from 0.5 to 2 * 9 * n * h
         ns = [10, 100]
 
@@ -303,7 +486,7 @@ class NHistStudy(BaseExperimento):
         n = 10
         total_c = 1000.0
         C = [total_c/(n - 1)] * int(n - 1)
-        prog_args = ["%s" % arg for arg in [executable] + [
+        prog_args = ["%s" % arg for arg in [self.executable] + [
             'display-forces', self.span, self.h, n] + C]
         output = check_output(prog_args)
         self.resultados.append(output)
@@ -311,16 +494,29 @@ class NHistStudy(BaseExperimento):
             self.span, (self.span/n), ((self.span/n)/self.h), self.max_force(prog_args, output),
             self.max_force_name(prog_args, output))
 
-        output = output.split('\n')
-        cost = output[0]
-        forces = output[1:]
-        lines = [float(line) for line in forces if line]
+        #output = output.split('\n')
+        #cost = output[0]
+        #forces = output[1:]
+        #lines = [float(line) for line in forces if line]
 
-        bins = range(-1000, 1000, 200)
-        x, bins, patches = plt.hist(lines, histtype='bar')
-        plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
+        #bins = range(-1000, 1000, 200)
+        buckets = self.make_buckets(output)
+        l, bins, patches = plt.hist(
+            [buckets['H0'],
+             buckets['V0'] * 2,
+             buckets['D'],
+             buckets['V'],
+             buckets['HL'],
+             buckets['HU']],
+            20, histtype='bar',
+            stacked=True,
+            color=['black', 'white', 'red', 'blue', 'green', 'yellow'],
+            label=['H0', 'Soportes', 'Diagonales', 'Verticales', 'Horizonal Superior', 'Horizonal Inferior'])
+
+        #x, bins, patches = plt.hist(lines, histtype='bar')
+        #plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         plt.autoscale(True, 'both', False)
-        plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
+        #plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
         plt.xlabel("Fuerza en viga")
         plt.ylabel("Cantidad")
         plt.grid(True)
@@ -332,7 +528,7 @@ class NHistStudy(BaseExperimento):
         total_c = 100.0
 
         C = [total_c/(n - 1)] * int(n - 1)
-        prog_args = ["%s" % arg for arg in [executable] + [
+        prog_args = ["%s" % arg for arg in [self.executable] + [
             'display-forces', self.span, self.h, n] + C]
         output = check_output(prog_args)
         self.resultados.append(output)
@@ -340,15 +536,29 @@ class NHistStudy(BaseExperimento):
             self.span, (self.span/n), ((self.span/n)/self.h), self.max_force(prog_args, output),
             self.max_force_name(prog_args, output))
 
-        output = output.split('\n')
-        cost = output[0]
-        forces = output[1:]
-        lines = [float(line) for line in forces if line]
+        from ipdb import set_trace; set_trace()
+        #output = output.split('\n')
+        #cost = output[0]
+        #forces = output[1:]
+        #lines = [float(line) for line in forces if line]
         bins = range(-100, 100, 20)
-        x, bins, patches = plt.hist(lines, histtype='bar')
-        plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
+        #x, bins, patches = plt.hist(lines, histtype='bar')
+        buckets = self.make_buckets(output)
+        l, bins, patches = plt.hist(
+            [buckets['H0'],
+             buckets['V0'] * 2,
+             buckets['D'],
+             buckets['V'],
+             buckets['HL'],
+             buckets['HU']],
+            20, histtype='bar',
+            stacked=True,
+            color=['black', 'white', 'red', 'blue', 'green', 'yellow'],
+            label=['H0', 'Soportes', 'Diagonales', 'Verticales', 'Horizonal Superior', 'Horizonal Inferior'])
+
+        #plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         plt.autoscale(True, 'both', False)
-        plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
+        #plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
         plt.xlabel("Fuerza en viga")
         plt.ylabel("Cantidad")
         plt.grid(True)
@@ -361,7 +571,7 @@ class NHistStudy(BaseExperimento):
 
         total_c = 1000.0
         C = [total_c/(n - 1)] * int(n - 1)
-        prog_args = ["%s" % arg for arg in [executable] + [
+        prog_args = ["%s" % arg for arg in [self.executable] + [
             'display-forces', self.span, self.h, n] + C]
         output = check_output(prog_args)
         self.resultados.append(output)
@@ -369,12 +579,26 @@ class NHistStudy(BaseExperimento):
             self.span, (self.span/n), ((self.span/n)/self.h), self.max_force(prog_args, output),
             self.max_force_name(prog_args, output))
 
-        lines = [float(line) for line in output.split('\n')[1: -1]]
+        #lines = [float(line) for line in output.split('\n')[1: -1]]
         bins = range(-40000, 40000, 5000),
-        x, bins, patches = plt.hist(lines, histtype='bar')
-        plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
+        #x, bins, patches = plt.hist(lines, histtype='bar')
+        buckets = self.make_buckets(output)
+        l, bins, patches = plt.hist(
+            [buckets['H0'],
+             buckets['V0'] * 2,
+             buckets['D'],
+             buckets['V'],
+             buckets['HL'],
+             buckets['HU']],
+            20, histtype='bar',
+            stacked=True,
+            color=['black', 'white', 'red', 'blue', 'green', 'yellow'],
+            label=['H0', 'Soportes', 'Diagonales', 'Verticales', 'Horizonal Superior', 'Horizonal Inferior'])
+
+
+        #plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         plt.autoscale(True, 'both', False)
-        plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
+        #plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
         plt.xlabel("Fuerza en viga")
         plt.ylabel("Cantidad")
         plt.grid(True)
@@ -386,7 +610,7 @@ class NHistStudy(BaseExperimento):
         total_c = 100.0
 
         C = [total_c/(n - 1)] * int(n - 1)
-        prog_args = ["%s" % arg for arg in [executable] + [
+        prog_args = ["%s" % arg for arg in [self.executable] + [
             'display-forces', self.span, self.h, n] + C]
         output = check_output(prog_args)
         self.resultados.append(output)
@@ -396,10 +620,24 @@ class NHistStudy(BaseExperimento):
 
         lines = [float(line) for line in output.split('\n')[1: -1]]
         bins = range(-4000, 4000, 200)
-        x, bins, patches = plt.hist(lines, histtype='bar')
-        plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
+        # x, bins, patches = plt.hist(lines, histtype='bar')
+
+        buckets = self.make_buckets(output)
+        l, bins, patches = plt.hist(
+            [buckets['H0'],
+             buckets['V0'] * 2,
+             buckets['D'],
+             buckets['V'],
+             buckets['HL'],
+             buckets['HU']],
+            20, histtype='bar',
+            stacked=True,
+            color=['black', 'white', 'red', 'blue', 'green', 'yellow'],
+            label=['H0', 'Soportes', 'Diagonales', 'Verticales', 'Horizonal Superior', 'Horizonal Inferior'])
+
+        #plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         plt.autoscale(True, 'both', False)
-        plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
+        #plt.title(u"Distribución de fuerzas con Span=100, n=%s, h=3, Ci=%.2f" % (n, C[0]))
         plt.xlabel("Fuerza en viga")
         plt.ylabel("Cantidad")
         plt.grid(True)
@@ -427,3 +665,10 @@ if __name__ == '__main__':
     #study = SpanCentralWeightStudy()
 
     study = NHistStudy()
+
+    #study = SpanStudyDisplayForces()
+
+    #study = AsymmetricWeightStudy()
+    #study = AsymmetricDisplayWeightStudy()
+    #study = AsymmetricWeightHist()
+

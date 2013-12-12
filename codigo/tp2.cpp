@@ -499,7 +499,6 @@ int main (int argc, char * argv[]) {
             n = atof(argv[4]);
             i = 5;
         } else {
-            cout << argv[1] << endl;
             span = atof(argv[1]);
             h = atof(argv[2]);
             n = atof(argv[3]);
@@ -536,7 +535,7 @@ int main (int argc, char * argv[]) {
     double tiempo_total = get_time();
 
     if (display_forces) {
-        dibujar_diagonal(m, 4 * n - 3);
+        dibujar_diagonal(m, 4 * n);
     } else {
         for (set<pilar_costo, ltstr>::iterator i = resultado.pilares.begin(); i != resultado.pilares.end(); i++) {
         cout << (*i).pilar << " ";
