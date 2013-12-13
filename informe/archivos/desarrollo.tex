@@ -26,34 +26,18 @@ Nos quedaron en total 20 casos, que si bien fue tedioso tener que escribir el c�
 
 Usamos Gauss con pivoteo parcial para poder triangular la matriz. Gracias a la implementación de nuestra matriz, el algoritmo resultó bastante estándar. Por la naturaleza de Gauss y sabiendo que la matriz es banda $p$, $q + p$ solo accedimos a esas posiciones relevantes, sobreentendiendo que los posiciones fuera de ese rango son $0$.
 
-\subsection{Heurística}
+ \subsection{Prototipo y metodología de desarrollo}
 
-Veamos primero el pseudocódigo de lo que hicimos y luego explicaremos brevemente su motivación.
-\begin{verbatim}
-def heuristica(m, begin, end, n):
+Considerando la complejidad de implementación inicial del código en un lenguaje de bajo nivel, desarrollamos un prototipo inicial en \textit{Python}, utilizando las librerias de \textit{NumPy}, y posteriormente \textit{Matplotlib} para la realización de gráficos de los experiementos.\\
 
-    costo, f_max = calc_costo_fuerza(m, begin, end)
+Primero que nada escribimos el código correspondiente a la caracterización de los links, fuerzas, y juntas del puente, correspondiendo a los distintos lugares de la matriz que resuelve las ecuaciones de fuerza. Luego puedimos corroborar que dicha caracterización era correcta usando como casos de pruebas los ejemplos provistos por la cátedra, y aprovechando el \textit{solver} de ecuaciones matriciales provisto por \textit{NumPy}, previo a desarrollar el resto del problema.\\
 
-    if n == 2:
-        return costo, None
-    else:
-        cost1, pilares = heuristica(m, 0, mitad(n))
-        cost2, pilares2 = heuristica(m, mitad(n), n)
-        costo_heuristica = cost1 + cost2 + costo_pilar
+En paralelo, desarrollamos una implementación de matriz diagonal esparsa en \textit{C++}. La misma está implementada internamente como una matriz de $ancho = p + q$, donde todos los accesos a los elementos de la misma se dan por las macros \textit{eq(joint, axis)} y \textit{f(force)}.\\
 
-    // Si se rompe o sale más barato dividir
-    if f_max > f_limite or (cost1 + cost2 + costo_pilar < costo):
-        poner_pilar(n/2)
-        return costo_heuristica, (pilares + pilares2 + pilar[n/2])
-    else:
-        return (costo, None)
-                        
-def calc_costo_fuerza(m, inicio, fin)
-    // Esta función devuelve el costo total del
-    // subpuente y el valor de la máxima fuerza
-    return costo, f_max
-\end{verbatim}
+La primera devuelve la fila de matriz correspondiente a la ecuación para la junta \textit{joint} en el eje \textit{x} o \textit{y}.La segunda devuelve la posición en la matriz a la que corresponde el número de fuerza dado según nuestro esquema de numeración.\\
 
-Nuestro enfoque para encarar este problema puede catalogarse como una técnica de $Divide$ $\&$ $Conquer$, en la cual nos fijamos primero si el puente colapsa, si colapsa se coloca un pilar en la junta central y se llama recursivamente a la función con los dos nuevos subpuentes, esto también se aplica si el puente no se colapsa pero el costo de colocar un pilar el medio es menor que el costo actual.
+Una vez verificados el correcto funcionamiento de la matriz esparsa y la caracterización de las fuerzas, desarrollamos el código correspondiente a la triangulación y \textit{backward substitution} para ser probado en casos de prueba, en los que retorna las fuerzas de cada link.\\
 
-Los casos base serían cuando las secciones son sólo 2 y cuando el costo de colocar un pilar supera al costo actual.
+A partir de ells desarrollamos una \textit{suite} de pruebas en \textit{Python} para realizar los experimentos presentados en la siguiente sección. Finalmente, agregamos el código correspondiente a la heurística y la capacidad de generar un puente a partir de un archivo de entrada.
+
+

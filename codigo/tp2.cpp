@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include <set>
+#include <list>
 using namespace std;
 
 
@@ -381,6 +382,7 @@ class heuristica_resultado {
     public:
         double costo;
         set<pilar_costo, ltstr> pilares;
+        list<double> costos;
         double primer_costo;
 
 };
@@ -400,7 +402,6 @@ heuristica_resultado heuristica(double * m, int n, double h, double span, double
     max_stress = max_abs_diagonal(m, secciones * 4);
 
     if (benchmark_mode) cout << max_stress << endl;
-
 
     // calculo el costo
     resultado.costo = costo(n, secciones, h, span, max_stress);
@@ -432,8 +433,14 @@ heuristica_resultado heuristica(double * m, int n, double h, double span, double
         resultado.costo = costo_suma;
         resultado.primer_costo = seccion1.costo;
         resultado.pilares = seccion1.pilares;
-        resultado.pilares.insert(seccion2.pilares.begin(), seccion2.pilares.end());
         resultado.pilares.insert(pilar_class);
+        resultado.pilares.insert(seccion2.pilares.begin(), seccion2.pilares.end());
+
+        // Add list of costs
+        resultado.costos = seccion1.costos;
+        resultado.costos.insert(seccion2.costos);
+    } else {
+        resultado.costos.insert(resultado.costo);
     }
     return resultado;
 
@@ -537,17 +544,14 @@ int main (int argc, char * argv[]) {
     if (display_forces) {
         dibujar_diagonal(m, 4 * n);
     } else {
+        cout << resultado.pilares.size() << endl;
         for (set<pilar_costo, ltstr>::iterator i = resultado.pilares.begin(); i != resultado.pilares.end(); i++) {
-        cout << (*i).pilar << " ";
+            cout << (*i).pilar << endl;
         }
-        cout << endl;
-
-        cout << resultado.primer_costo<< " ";
 
         for (set<pilar_costo, ltstr>::iterator i = resultado.pilares.begin(); i != resultado.pilares.end(); i++) {
-        cout << (*i).costo << " ";
+        cout << (*i).costo << endl;
         }
-        cout << endl;
     }
 
     // Cleanup

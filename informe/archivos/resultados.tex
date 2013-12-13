@@ -1,4 +1,23 @@
 \section{Resultados}
+
+\subsection{Casos de experimentación}
+
+Nuestras experimentaciones revuelven sobre tres experimentos distintos:
+\begin{itemize}
+	\item Dadas una altura y número de secciones fijas, y una carga constante distribuida uniformemente sobre el puente, variar el \textit{span} del puente, y analizar el comportamiento de las fuerzas máximas
+	\item Repetir el experimento anterior pero con el mismo peso total de cargas situado en el centro del puento
+	\item Dado un \textit{span} y altura fijos, y un peso total distribuido uniformemente, estudiar el efecto de subdividir el puente en más o menos juntas
+	\item Adicionalmente, analizar si posicionar una carga asimétricamente en el puente genera comportamientos interesantes.
+\end {itemize}
+
+En todos los casos, concentramos nuestros estudios en el valor absoluto de la máxima fuerza ejercida, y en la distribución de fuerzas ejercidas en todos los links, discriminadas por la clase de link.\\
+
+Si bien teóricamente los resultados deberian ser siempre idénticos en los links
+que se reflejan simétricamente, pequeñas diferencias debido a la imprecisión 
+numérica del algoritmo hacen que esto no siempre sea el caso. No obstante,
+en ninguna observación de cualquiera de los experimentos hubieron discrepancias
+por encima del $1\%$ del mejor resultado obtenido por el \textit{solver} de \textit{NumPy}.\\
+
 \subsection{Experimento 1: Aumentar el span con carga uniforme}
 
 Para este tipo de experimento fijamos todos los parámetros e incrementamos el $span$. El propósito de esta prueba era observar como iba evolucionando la fuerza máxima aplicada en los links.\\
@@ -8,7 +27,9 @@ Mostraremos dos gráficos en los cuales el set de datos será \textit{span: 8},
 \textit{span: 20}, \textit{altura: 3} y \textit{carga por sección: 5} para $i \in [1 \dots 19]$ para el segundo.\\
 
 Nuestra hipótesis es que las fuerzas irían aumentando a medida que el $span$ 
-aumenta, ya que la longitud por cada sección aumentahaciendo que los links tengan que soportar más peso. Veamos lo que realmente sucede:
+aumenta, ya que la longitud por cada sección aumentahaciendo que los links tengan que soportar más peso. Veamos lo que realmente sucede.\\
+
+
 
 \begin{figure}[h!]
 	\begin{center}
@@ -24,16 +45,9 @@ aumenta, ya que la longitud por cada sección aumentahaciendo que los links teng
 	\end{center}
 \end{figure}
 
-En ambos gráficos, podemos observar que la máxima fuerza en algún link del puente crece linealmente conforme aumenta el $span$. Es interesante notar que en los primeros dos casos, donde el ratio de \textit{ancho vs. altura} no supera $0,5$ la máxima fuerza es la compresión que reciben los links diagonales de los extremos, que soportan el peso completo del puente. De ahi en adelante la máxima fuerza es la compresión sufrida por los links centrales superiores.\\
+En las figuras \ref{fig:fuerza_x_span} y \ref{fig:fuerza_x_span2}, podemos observar que la máxima fuerza en algún link del puente crece linealmente conforme aumenta el $span$. Es interesante notar que en los primeros dos casos, donde el ratio de \textit{ancho vs. altura} no supera $0,5$ la máxima fuerza es la compresión que reciben los links diagonales de los extremos, que soportan el peso completo del puente. De ahi en adelante la máxima fuerza es la compresión sufrida por los links centrales superiores.\\
 
-Si bien teóricamente los resultados deberian ser siempre idénticos en los links
-que se reflejan simétricamente, pequeñas diferencias debido a la imprecisión 
-numérica del algoritmo hacen que esto no siempre sea el caso. No obstante,
-en ninguna observación de cualquiera de los experimentos hubieron discrepancias
-por encima del $1\%$ del mejor resultado obtenido por el \textit{solver} de \textit{NumPy}.\\
-
-Conforme las secciones del puente se hacen más anchas, esa carga aumenta linealmente, indicando que estas vigas soportan el mayor nivel de compresión y fuerza, y el análisis de costo de un puente deberia tomar este hecho en cuenta.
-
+Conforme las secciones del puente se hacen más anchas, esa carga aumenta linealmente, indicando que estas vigas soportan el mayor nivel de compresión y fuerza, y el análisis de costo de un puente deberia tomar este hecho en cuenta.\\
 
 \subsubsection{Distribución de la cantidad de fuerzas}
 
@@ -139,15 +153,16 @@ La figure \ref{fig:hist_asim} muestra la distribución de fuerzas en los links d
 \end{center}
 \end{figure}
 
+\subsection{Análisis preliminar}
 
-\subsection{Casos de prueba para Heurística}
+Habiendo hecho los estudios anteriores, podemos concluir que el comportamiento de las estructura es, en general, bastante predecible en cuanto a las fuerzas ejercidas en el puente.\\
+
+Alterar la posición o distribución de fuerzas en el puente no exhibe cambios en el comportamiento estructural de las fuerzas; siguen apareciendo los mismos patrones de compresión y tensión que observamos en todos los casos de prueba.\\
+
+Hay dos conclusiones importantes a la hora de considerar los costos asociados a un puente que debe cubrir un cierto \textit{span}:
+
 \begin{itemize}
-	\item Caso de puente simple de 8 segmentos: En primera instancia, una vez hechas la pruebas con puentes de
-2 y 4 segmentos para verificar que la heurística funcionaba bien para casos
-extremadamente básicos, analizamos un puente simple de 8 segmentos y redujimos
-el costo hasta ver que la heurístia considere pertinente agregar un pilar. Es decir nuestra heurística colocaba pilares alrededor las pesos que de mayor magnitud. Esto en principio podría considerarse bastante básico pero es un enfoque válido a nuestro criterio
-	\item Caso de puente simple de mas de 8 segmentos:	Luego elegimos probar uno de los casos de estudio para estudiar la
-distribución de fuerzas interas del puente, con span fijo de 100,
-n de 10 y 100, y tanto pesos uniformes en el puente, como pesos
-bajos en todos los segmentos más un peso considerable unitario. Nuevamente obtuvimos el mismo comportamiento que en el caso anterior.
+\item Al fraccionar un puente en más secciones no observamos que necesariamente se produzcan mejoras en el máximo valor absoluto de alguna fuerza del puente. Si bien esto amerita más estudio, se puede generalizar que, para la ecuación de costo provista por la cátedra, es preferible minimizar la cantidad de links dentro de un parámetro razonable.
+\item La cantidad de fuerzas cerca del máximo valor absoluto es reducida. En la práctica esto se puede traducir a que se podría, en la realidad, experimentar con materiales de mayor integridad estructural para las juntas críticas horizontales, y otros de menor costo para las fuerzas diagonales y verticales (con la excepción de las diagonales extremas, que soportan el peso del puente).
+\item Los comportamientos de fuerzas en relación a aumentos de fuerzas para cambios de dimensiones y cargas suelen exhibir una naturaleza lineal. Es decir, observamos que duplicar alguno de los parámetros del puente estudiados (por ejemplo, peso total, \textit{span} o $n$) incrementarán las fuerzas internas en un factor lineal. Esto quiere decir que es improbable, dados los casos de estudio, que existan otros casos patológicos donde el comportamiento del puente sea muy distinto.
 \end{itemize}
