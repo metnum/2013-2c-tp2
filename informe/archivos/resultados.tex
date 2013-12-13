@@ -4,16 +4,16 @@
 
 Nuestras experimentaciones revuelven sobre tres experimentos distintos:
 \begin{itemize}
-	\item Dadas una altura y número de secciones fijas, y una carga constante distribuida uniformemente sobre el puente, variar el \textit{span} del puente, y analizar el comportamiento de las fuerzas máximas
-	\item Repetir el experimento anterior pero con el mismo peso total de cargas situado en el centro del puento
-	\item Dado un \textit{span} y altura fijos, y un peso total distribuido uniformemente, estudiar el efecto de subdividir el puente en más o menos juntas
+	\item Dadas una altura y número de secciones fijas, y una carga constante distribuida uniformemente sobre el puente, variar el \textit{span} del puente, y analizar el comportamiento de las fuerzas máximas.
+	\item Repetir el experimento anterior pero con el mismo peso total de cargas situado en el centro del puente.
+	\item Dado un \textit{span} y altura fijos, y un peso total distribuido uniformemente, estudiar el efecto de subdividir el puente en más o menos juntas.
 	\item Adicionalmente, analizar si posicionar una carga asimétricamente en el puente genera comportamientos interesantes.
 \end {itemize}
 
 En todos los casos, concentramos nuestros estudios en el valor absoluto de la máxima fuerza ejercida, y en la distribución de fuerzas ejercidas en todos los links, discriminadas por la clase de link.\\
 
 Si bien teóricamente los resultados deberian ser siempre idénticos en los links
-que se reflejan simétricamente, pequeñas diferencias debido a la imprecisión 
+que se reflejan simétricamente, pequeñas diferencias debido a la imprecisión
 numérica del algoritmo hacen que esto no siempre sea el caso. No obstante,
 en ninguna observación de cualquiera de los experimentos hubieron discrepancias
 por encima del $1\%$ del mejor resultado obtenido por el \textit{solver} de \textit{NumPy}.\\
@@ -23,10 +23,10 @@ por encima del $1\%$ del mejor resultado obtenido por el \textit{solver} de \tex
 Para este tipo de experimento fijamos todos los parámetros e incrementamos el $span$. El propósito de esta prueba era observar como iba evolucionando la fuerza máxima aplicada en los links.\\
 
 Mostraremos dos gráficos en los cuales el set de datos será \textit{span: 8},
-\textit{altura: 3}, y \textit{carga por sección: 5} para $i \in [1 \dots 7]$ en el primer gráfico y 
+\textit{altura: 3}, y \textit{carga por sección: 5} para $i \in [1 \dots 7]$ en el primer gráfico y
 \textit{span: 20}, \textit{altura: 3} y \textit{carga por sección: 5} para $i \in [1 \dots 19]$ para el segundo.\\
 
-Nuestra hipótesis es que las fuerzas irían aumentando a medida que el $span$ 
+Nuestra hipótesis es que las fuerzas irían aumentando a medida que el $span$
 aumenta, ya que la longitud por cada sección aumentahaciendo que los links tengan que soportar más peso. Veamos lo que realmente sucede.\\
 
 
@@ -87,13 +87,13 @@ Ahora veamos qué sucede cuando aumentamos el $span$, dejando todo fijo pero
 \end{center}
 \end{figure}
 
-Cuando ponemos el peso equivalente a la carga distribuida uniformemente en el 
-vértice central, notamos que el comportamiento es idéntico al experimento 
+Cuando ponemos el peso equivalente a la carga distribuida uniformemente en el
+vértice central, notamos que el comportamiento es idéntico al experimento
 anterior en forma, pero la fuerza máxima soportada por un link es considerablemente mayor, y el valor del span desde el cual la fuerza máxima es soportada por los links diagonales exteriores es mayor (cuando $span = 600$).\\
 
 Esto se explicaría porque la distribución centralizada del peso fuerza a que los links centrales concentres las fuerzas de la carga sin la ayuda de los links más distantes del centro del puente, que juegan un mayor rol cuando el peso es más uniforme.
 
-\newpage 
+\newpage
 \subsection{Experimento 3: Cambiar la cantidad de secciones}
 
 Ahora analizamos cómo se comportan las fuerzas de los links cuando cambiamos la cantidad de secciones en los que está subdividido.\\
@@ -132,7 +132,7 @@ En las figuras \ref{fig:hist_n100_C100} y \ref{fig:hist_n10_C100}, generamos un 
 \end{center}
 \end{figure}
 
-Observamos que la máxima fuerza en los puentes densos y esparsos de misma longitud son similares, con el puente con menos links teniendo, en proporción levemente más links en los extremos, y las diagonales soportando un poco más carga, aunque igualmente más cerca del cero que de los valores extremos.\\
+Observamos que la máxima fuerza en los puentes densos y esparsos de misma longitud son similares, con el puente con menos links teniendo, en proporción levemente más links en los extremos, y las diagonales soportando un poco más de carga, aunque igualmente más cerca del cero que de los valores extremos.\\
 
 Nótese que en el caso donde \textit{span}$=100$ y $n=10$, cada sección tiene una longitud de $10$ y altura de $3$ (es decir, es más ancha que alta), y cuando \textit{span}$=100$ y $h=100$, las mismas son rectangulares pero más altas que anchas.\\
 
@@ -143,7 +143,7 @@ Probamos también aumentar el \textit{span} con carga asimétrica con \textit{n�
 
 Esto se explica debido a que los pesos flexionan el puente hacia abajo, y por ende los links superiores a los pesos sufren un efecto de compresión que permite que la estructura permanezca estable. Dado que en esta prueba el único cambio sobre las anteriores es que el peso está distribuido asimétricamente y en forma concentrada, es razonable que la estructura se siga comportando físicamente con el mismo patrón.\\
 
-La figure \ref{fig:hist_asim} muestra la distribución de fuerzas en los links discriminada por tipo de link. Tal como analizamos en casos anteriores, las fuerzas diagonales y verticales son relativamente bajas en el espectro total, mientras que los extremos son dominados por las fuerzas horizontales, con las superiores sufriendo compresión, y las inferiores, tensión. 
+La figura \ref{fig:hist_asim} muestra la distribución de fuerzas en los links discriminada por tipo de link. Tal como analizamos en casos anteriores, las fuerzas diagonales y verticales son relativamente bajas en el espectro total, mientras que los extremos son dominados por las fuerzas horizontales, con las superiores sufriendo compresión, y las inferiores, tensión.
 
 \begin{figure}[h!]
 \begin{center}

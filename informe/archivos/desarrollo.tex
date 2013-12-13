@@ -24,11 +24,11 @@ Nos quedaron en total 20 casos, que si bien fue tedioso tener que escribir el c�
 
 \subsection{Triangulación}
 
-Usamos Gauss con pivoteo parcial para poder triangular la matriz. Gracias a la implementación de nuestra matriz, el algoritmo resultó bastante estándar. Por la naturaleza de Gauss y sabiendo que la matriz es banda $p$, $q + p$ solo accedimos a esas posiciones relevantes, sobreentendiendo que los posiciones fuera de ese rango son $0$.
+Usamos Gauss con pivoteo parcial para poder triangular la matriz. Gracias a la implementación de nuestra matriz, el algoritmo resultó bastante estándar. Por la naturaleza de Gauss y sabiendo que la matriz es banda $p$, $q + p$ sólo accedimos a esas posiciones relevantes, sobreentendiendo que los posiciones fuera de ese rango son $0$.
 
  \subsection{Prototipo y metodología de desarrollo}
 
-Considerando la complejidad de implementación inicial del código en un lenguaje de bajo nivel, desarrollamos un prototipo inicial en \textit{Python}, utilizando las librerias de \textit{NumPy}, y posteriormente \textit{Matplotlib} para la realización de gráficos de los experiementos.\\
+Considerando la complejidad de implementación inicial del código en un lenguaje de bajo nivel, desarrollamos un prototipo inicial en \textit{Python}, utilizando las librerias de \textit{NumPy}, y posteriormente \textit{Matplotlib} para la realización de gráficos de los experimentos.\\
 
 Primero que nada escribimos el código correspondiente a la caracterización de los links, fuerzas, y juntas del puente, correspondiendo a los distintos lugares de la matriz que resuelve las ecuaciones de fuerza. Luego puedimos corroborar que dicha caracterización era correcta usando como casos de pruebas los ejemplos provistos por la cátedra, y aprovechando el \textit{solver} de ecuaciones matriciales provisto por \textit{NumPy}, previo a desarrollar el resto del problema.\\
 
@@ -38,6 +38,6 @@ La primera devuelve la fila de matriz correspondiente a la ecuación para la jun
 
 Una vez verificados el correcto funcionamiento de la matriz esparsa y la caracterización de las fuerzas, desarrollamos el código correspondiente a la triangulación y \textit{backward substitution} para ser probado en casos de prueba, en los que retorna las fuerzas de cada link.\\
 
-A partir de ells desarrollamos una \textit{suite} de pruebas en \textit{Python} para realizar los experimentos presentados en la siguiente sección. Finalmente, agregamos el código correspondiente a la heurística y la capacidad de generar un puente a partir de un archivo de entrada.
+A partir de ahí desarrollamos una \textit{suite} de pruebas en \textit{Python} para realizar los experimentos presentados en la siguiente sección. Finalmente, agregamos el código correspondiente a la heurística y la capacidad de generar un puente a partir de un archivo de entrada.
 
 
