@@ -33,23 +33,22 @@ def calc_costo_fuerza(m, inicio, fin)
     return costo, f_max
 \end{verbatim}
 
-En esencia, comparamos el costo de utilizar un puente para cubrir un \textit{span} vs. particional el problema en 2, colocar un pilar en el medio, y poner dos puentes, y seleccionamos el caso óptimo. Esto se realiza recursivamente para cada subpuente, devolviendo cada etapa el mejor resultado de la heurística para la fracción calculada.
+En esencia, comparamos el costo de utilizar un puente para cubrir un \textit{span} vs. particionar el problema en 2, colocar un pilar en el medio, y poner dos puentes, y seleccionamos el caso óptimo. Esto se realiza recursivamente para cada subpuente, devolviendo  en cada etapa el mejor resultado de la heurística para la fracción calculada.
 
 \subsection{Casos de prueba para Heurística}
 
-A continuación enunciaos algunos casos de pruebas con los que verificamos el funcionamiento de la heurística, tanto para corroborar correctitud, casos regulares, y posibles casos patológicos.
+A continuación enunciamos algunos casos de pruebas con los que verificamos el funcionamiento de la heurística, tanto para corroborar correctitud, casos regulares, y posibles casos patológicos.
 
 \subsubsection{Caso de puente simple de 8 segmentos}
 Una vez hechas la pruebas con puentes de 2 y 4 segmentos para verificar que la heurística funcionaba bien para casos extremadamente básicos, analizamos un puente simple de 8 segmentos con un peso centralizado importante y pesos uniformes bajos, y redujimos el costo de agregar un pilar hasta ver que la heurística considere pertinente agregar un pilar.\\
 
-Observamos que, tal como es de esperar, le heurística prioriza agregar pilares con cercanía al peso más pesado. Si el costo de los pilares se reduce lo suficiente, se empiezan a agregar pilares soportando el resto de las secciones.\\
-
+Observamos que, tal como es de esperar, le heurística prioriza agregar pilares con cercanía al peso más pesado. Si el costo de los pilares se reduce lo suficiente, se empiezan a agregar pilares soportando el resto de las secciones.
 
 \subsubsection{Casos patológicos}
 
-Una consecuencia del funcionamiento de la heurística es que, como fracciona el problema en subproblemas sin contemplar las interacciones entre las distintas subsecciones, no puede contemplar el abanico completo de posiciones en las que puede colocar un pilar. De ahi es posible que ocurran casos patológicos donde no se contemplan opciones que, siendo cercanas a las que pueden generar, produce resutlados mucho mejores. Ilustramos esto con el siguiente ejemplo:\\
+Una consecuencia del funcionamiento de la heurística es que, como fracciona el problema en subproblemas sin contemplar las interacciones entre las distintas subsecciones, no puede contemplar el abanico completo de posiciones en las que puede colocar un pilar. De ahi es posible que ocurran casos patológicos donde no se contemplan opciones que, siendo cercanas a las que pueden generar, produce resultados mucho mejores. Ilustramos esto con el siguiente ejemplo:\\
 
-Tenemos un puente con los siguientes parámetros: $span:40, h:4, n:20$, $costo por pilar: 5000$, $max\_carga: 2000$ y las cargas:\\
+Tenemos un puente con los siguientes parámetros: \textit{span}:$40$, $h$:$4$, $n$:$20$, \textit{costo por pilar}: $5000$, \textit{max\_carga}: $2000$ y las cargas:\\
 
 \begin{verbatim}
 5
