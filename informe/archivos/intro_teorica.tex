@@ -8,9 +8,13 @@ Veamos que esto forma una matriz cuadrada: La cantidad de links (sobre los cuale
 
 Para numerar los links empezamos desde abajo hacia arriba y de izquierda a derecha.
 
-\subsection{Matriz Banda $p$, $q$}
+\subsection{Cota para los valores $p$, $q$}
 
-Como se mostró en el enunciado la matriz es banda $p$, $q$. El valor de $p$ y de $q$ va a estar determinado por la cantidad de ecuaciones en la que una determinada fuerza aparezca. Observando las juntas, tomamos aquella en la cual mas fuerzas se aplican, esta obviamente es la central, en cuyo eje $x$ intervienen 5 fuerzas. Estas aparecen en 3 ecuaciones posteriores y en 2 anteriores. Siendo un poco laxos, dado este escueto análisis podemos afirmar que los valores $p$ y $q$ no van a ser mas grandes que $4$.\\
+Dada la estructura de la matriz se puede ver que los valores $p$ y $q$ están acotados. Esto está determinado por la cantidad de links que interactúan en las juntas y también por la manera en cómo numeramos los links.\\
+
+Como se verá en la parte de Desarrollo, hay 20 casos posibles de configuraciones de juntas determinadas por los links, cada uno de esos casos determina una ecuación (fila en la matriz). Observando las ecuaciones, tomamos aquella en la cual mas fuerzas se aplican, esta obviamente es la ecuación determinada por la junta central, en cuyo eje $x$ intervienen 5 fuerzas. Estas aparecen en 3 ecuaciones posteriores y en 2 anteriores.\\
+
+Luego en las restantes juntas, en general intervienen entre 3 y 4 fuerzas que a su vez intervienen 3 y 2 ecuaciones posteriores y anteriores respectivamente. Esto nos determina que podemos tomar a 4 como el valor de la cota superior para $p$ y $q$.
 
 \subsubsection{Demostración de Matriz banda $p$, $q + p$}
 
