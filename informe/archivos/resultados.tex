@@ -26,10 +26,8 @@ Mostraremos dos gráficos en los cuales el set de datos será \textit{span: 8},
 \textit{altura: 3}, y \textit{carga por sección: 5} para $i \in [1 \dots 7]$ en el primer gráfico y
 \textit{span: 20}, \textit{altura: 3} y \textit{carga por sección: 5} para $i \in [1 \dots 19]$ para el segundo.\\
 
-Nuestra hipótesis es que las fuerzas irían aumentando a medida que el $span$
-aumenta, ya que la longitud por cada sección aumentahaciendo que los links tengan que soportar más peso. Veamos lo que realmente sucede.\\
-
-
+Nuestra hipótesis es que las fuerzas irían aumentando conforme el $span$
+ aumenta, ya que la longitud por cada sección aumenta y al estar los soportes del puente más alejados de las fuerzas que ejercen peso, intuitivamente se deberia observar el mismo efecto que cuando una vara que soporta peso en un extremo se va alargando: la misma sufre más torque y fuerzas internas. Veamos lo que realmente sucede.\\
 
 \begin{figure}[h!]
 	\begin{center}
@@ -91,7 +89,7 @@ Cuando ponemos el peso equivalente a la carga distribuida uniformemente en el
 vértice central, notamos que el comportamiento es idéntico al experimento
 anterior en forma, pero la fuerza máxima soportada por un link es considerablemente mayor, y el valor del span desde el cual la fuerza máxima es soportada por los links diagonales exteriores es mayor (cuando $span = 600$).\\
 
-Esto se explicaría porque la distribución centralizada del peso fuerza a que los links centrales concentres las fuerzas de la carga sin la ayuda de los links más distantes del centro del puente, que juegan un mayor rol cuando el peso es más uniforme.
+Esto se explicaría porque la distribución centralizada del peso fuerza a que los links centrales concentren las fuerzas de la carga sin la ayuda de los links más distantes del centro del puente, que juegan un mayor rol cuando el peso es más uniforme.
 
 \newpage
 \subsection{Experimento 3: Cambiar la cantidad de secciones}
