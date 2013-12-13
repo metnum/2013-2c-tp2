@@ -6,7 +6,11 @@ Dada la estructura del puente y que el enunciado del problema pedía averiguar l
 
 Veamos que esto forma una matriz cuadrada: La cantidad de links (sobre los cuales las fuerzas se aplican) es $4n - 3$ pero además tenemos las fuerzas que se aplican en los extremos del puente ($v_0$ y $v_1$) y el $h_0$, lo que hace que en total sean $4n$ fuerzas. Luego la cantidad de juntas son $2n$, pero como bien se explicó en el enunciado, para plantear la ecuación de las fuerzas sobre una junta, hace falta descomponer estas en los ejes $x$ e $y$, produciendo que tengamos dos ecuaciones por cada junta, quedándonos $4n$ ecuaciones.\\
 
-Para numerar los links empezamos desde abajo hacia arriba y de izquierda a derecha.
+\subsection{Numeración de los links}
+
+Para numerar los links empezamos desde abajo hacia arriba y de izquierda a derecha. Los numeramos de esta manera porque nos permitió mantener una relación vecindad numérica con los links que interactúan en las juntas. Y mas importante aún, determina que la matriz sea banda $p$, $q$.\\
+
+De haberlo hecho de otra manera, no podríamos asegurar que la estructura de la matriz sea como el enunciado la describe, ya que la vecindad numérica de la que hablamos en el párrafo anterior se podría perder.
 
 \subsection{Cota para los valores $p$, $q$}
 
