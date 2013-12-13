@@ -8,15 +8,15 @@ Veamos que esto forma una matriz cuadrada: La cantidad de links (sobre los cuale
 
 \subsection{Numeración de los links}
 
-Para numerar los links empezamos desde abajo hacia arriba y de izquierda a derecha. Los numeramos de esta manera porque nos permitió mantener una relación vecindad numérica con los links que interactúan en las juntas. Y mas importante aún, determina que la matriz sea banda $p$, $q$.\\
+Para numerar los links comenzamos desde abajo hacia arriba y de izquierda a derecha, en órden de secciones, de tal forma que $f1$ es el link inferior extremo la izquierda, $f2$ es la diagonal de la izquerda, $f3$ es el primer link vertical, y $f4$ es el segundo link horizontal.  Esto nos permitió mantener una relación de vecindad numérica con los links que interactúan en las juntas. Y mas importante aún, determina que la matriz sea banda $p$, $q$.\\
 
-De haberlo hecho de otra manera, no podríamos asegurar que la estructura de la matriz sea como el enunciado la describe, ya que la vecindad numérica de la que hablamos en el párrafo anterior se podría perder.
+Si bien hay otras posibles configuraciones numéricas que preservan una propiedad de vecindad, esta permite identificar la posición relativa de izquierda a derecha de un link.
 
 \subsection{Cota para los valores $p$, $q$}
 
 Dada la estructura de la matriz se puede ver que los valores $p$ y $q$ están acotados. Esto está determinado por la cantidad de links que interactúan en las juntas y también por la manera en cómo numeramos los links.\\
 
-Como se verá en la parte de Desarrollo, hay 20 casos posibles de configuraciones de juntas determinadas por los links, cada uno de esos casos determina una ecuación (fila en la matriz). Observando las ecuaciones, tomamos aquella en la cual mas fuerzas se aplican, esta obviamente es la ecuación determinada por la junta central, en cuyo eje $x$ intervienen 5 fuerzas. Estas aparecen en 3 ecuaciones posteriores y en 2 anteriores.\\
+Como se verá en la parte de Desarrollo, hay 20 casos posibles de configuraciones de juntas determinadas por los links. Cada uno de esos casos determina una ecuación (fila en la matriz). Observando las ecuaciones, tomamos aquella en la cual mas fuerzas se aplican. Esta resulta la ecuación determinada por la junta central inferior, en cuyo eje $x$ intervienen 5 fuerzas. Estas aparecen en 3 ecuaciones posteriores y en 2 anteriores.\\
 
 Luego en las restantes juntas, en general intervienen entre 3 y 4 fuerzas que a su vez intervienen 3 y 2 ecuaciones posteriores y anteriores respectivamente. Esto nos determina que podemos tomar a 4 como el valor de la cota superior para $p$ y $q$.
 
@@ -44,4 +44,4 @@ Sea una matriz $A \in \mathbb{R}^{n \times n}$ con banda $p$, $q$ y sea el paso 
     \item {\bf Se hicieron permutaciones previamente:} Si ya hubo permutaciones, el caso que nos va a interesar analizar es en el que estamos parados sobre una fila que tiene valores en las posiciones $i$ a $q + p$. Pero haciendo análisis similar al del punto anterior, podemos ver que sólo podemos permutar con las $i + p$ filas siguientes, pero es fácil ver que las posiciones afectadas caen en el rango de $q + p$.
 \end{enumerate}
 
-Esbozando un esquema inductivo podemos afirmar que dado una iteración del proceso de triangulación de Gauss sobre la matriz $A$ la submatriz triangular inferior es banda inferior $p$ y la submatriz triangular superior es banda superior $q + p$. Cumpliendo estas normas se puede deducir que la matriz en todo paso de la iteración de Gauss es banda $p$, $q + p$
+Esbozando un esquema inductivo podemos afirmar que dado una iteración del proceso de triangulación de Gauss sobre la matriz $A$, la submatriz triangular inferior es banda inferior $p$ y la submatriz triangular superior es banda superior $q + p$. Cumpliendo estas normas se puede deducir que la matriz en todo paso de la iteración de Gauss es banda $p$, $q + p$
