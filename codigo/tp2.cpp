@@ -412,6 +412,7 @@ heuristica_resultado heuristica(double * m, int n, double h, double span, double
 
     if (fin - inicio == 2) {
         // sin pilares, el costo ya esta seteado
+        resultado.costos.push_back(resultado.costo);
         return resultado;
     }
 
@@ -438,9 +439,9 @@ heuristica_resultado heuristica(double * m, int n, double h, double span, double
 
         // Add list of costs
         resultado.costos = seccion1.costos;
-        resultado.costos.insert(seccion2.costos);
+        resultado.costos.insert(resultado.costos.end(), seccion2.costos.begin(), seccion2.costos.end());
     } else {
-        resultado.costos.insert(resultado.costo);
+        resultado.costos.push_back(resultado.costo);
     }
     return resultado;
 
@@ -520,12 +521,9 @@ int main (int argc, char * argv[]) {
             return 1;
         }
 
-        for(int j = 0; j < n - 1; ++j) {
+        for(int j = 0; j < n - 2; ++j) {
             C[j] = atof(argv[j + i]);
         }
-
-        fmax = 10000000;
-        costo_pilar = 10000000;
     }
 
     // Termine de leer del archivo
@@ -549,8 +547,8 @@ int main (int argc, char * argv[]) {
             cout << (*i).pilar << endl;
         }
 
-        for (set<pilar_costo, ltstr>::iterator i = resultado.pilares.begin(); i != resultado.pilares.end(); i++) {
-        cout << (*i).costo << endl;
+        for (list<double>::iterator i = resultado.costos.begin(); i != resultado.costos.end(); i++) {
+        cout << *i << endl;
         }
     }
 

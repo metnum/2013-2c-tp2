@@ -1,0 +1,103 @@
+\section{Heurística}
+
+En esta sección, utilizando las conclusiones de los experimentos anteriores, proponemos una heurística para resolver el particionamiento de un \textit{span} a cubrir con un puente en subpuentes soportados por pilares con un costo predeterminado.\\
+
+\subsection{Enunciado de heurística}
+
+Considerando el comportamiento predecible de las fuerzas del puente según los estudios preliminares, consideramos que una heurística que particiona el problema en subproblemas y los resuelve con resultado satisfactoriamente ``buenos'' deberia retornar resultados cercanos al óptimo global del problema. Esto es en esencia la definición de una heurística de tipo \textit{Divide and Conquer}.\\
+
+Veamos primero el pseudocódigo de lo que hicimos y luego explicaremos brevemente su motivación.\\
+
+\begin{verbatim}
+def heuristica(m, begin, end, n):
+
+    costo, f_max = calc_costo_fuerza(m, begin, end)
+
+    if n == 2:
+        return costo, None
+    else:
+        cost1, pilares = heuristica(m, 0, mitad(n))
+        cost2, pilares2 = heuristica(m, mitad(n), n)
+        costo_heuristica = cost1 + cost2 + costo_pilar
+
+    // Si se rompe o sale más barato dividir
+    if f_max > f_limite or (cost1 + cost2 + costo_pilar < costo):
+        poner_pilar(n/2)
+        return costo_heuristica, (pilares + pilares2 + pilar[n/2])
+    else:
+        return (costo, None)
+                        
+def calc_costo_fuerza(m, inicio, fin)
+    // Esta función devuelve el costo total del
+    // subpuente y el valor de la máxima fuerza
+    return costo, f_max
+\end{verbatim}
+
+En esencia, comparamos el costo de utilizar un puente para cubrir un \textit{span} vs. particional el problema en 2, colocar un pilar en el medio, y poner dos puentes, y seleccionamos el caso óptimo. Esto se realiza recursivamente para cada subpuente, devolviendo cada etapa el mejor resultado de la heurística para la fracción calculada.
+
+\subsection{Casos de prueba para Heurística}
+
+A continuación enunciaos algunos casos de pruebas con los que verificamos el funcionamiento de la heurística, tanto para corroborar correctitud, casos regulares, y posibles casos patológicos.
+
+\subsubsection{Caso de puente simple de 8 segmentos}
+Una vez hechas la pruebas con puentes de 2 y 4 segmentos para verificar que la heurística funcionaba bien para casos extremadamente básicos, analizamos un puente simple de 8 segmentos con un peso centralizado importante y pesos uniformes bajos, y redujimos el costo de agregar un pilar hasta ver que la heurística considere pertinente agregar un pilar.\\
+
+Observamos que, tal como es de esperar, le heurística prioriza agregar pilares con cercanía al peso más pesado. Si el costo de los pilares se reduce lo suficiente, se empiezan a agregar pilares soportando el resto de las secciones.\\
+
+
+\subsubsection{Casos patológicos}
+
+Una consecuencia del funcionamiento de la heurística es que, como fracciona el problema en subproblemas sin contemplar las interacciones entre las distintas subsecciones, no puede contemplar el abanico completo de posiciones en las que puede colocar un pilar. De ahi es posible que ocurran casos patológicos donde no se contemplan opciones que, siendo cercanas a las que pueden generar, produce resutlados mucho mejores. Ilustramos esto con el siguiente ejemplo:\\
+
+Tenemos un puente con los siguientes parámetros: $span:40, h:4, n:20$, $costo por pilar: 5000$, $max\_carga: 2000$ y las cargas:\\
+
+\begin{verbatim}
+5
+5
+5
+5
+5
+5
+5
+5
+50
+50
+50
+5
+5
+5
+5
+5
+5
+5
+5
+\end{verbatim}
+
+El resultado emitido por la heurística, según el formato de la cátedra, es:\\
+
+\begin{verbatim}
+1
+10
+10399.3
+10399.3
+\end{verbatim}
+
+Podemos observar que, razonáblemente, colocó un pilar entre una de las tres cargas de peso 50, pero ninguna de las configuraciones posibles de la heurística permitian generar un resultado mejor.\\
+
+Observemos ahora el resultado que ocurre si desplazamos las cargas de $50$ un elemento hacia abajo:
+
+\begin{verbatim}
+3
+6
+8
+10
+2506.23
+215.998
+2159.98
+7295.08
+\end{verbatim}
+
+El resultado muestra que se colocaron pilares en posiciones que son evidentemente mucho más óptimas, y esto se debe a que la heurística contempló los pesos concentrados de tal forma en que las dos subsecciones del problema que las abarca daban mejores resultados.\\
+
+Lamentablemente, la diferencia es significativa: el primer resultado es $1,7$ veces mayor que el segundo, si bien es claro que con un poco de prueba y error se podría obtener un resultado mucho mejor dada la similitud de los casos.\\
+

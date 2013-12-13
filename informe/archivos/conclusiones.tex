@@ -1,0 +1,40 @@
+\section{Conclusiones}
+
+En este trabajo practico realizamos el estudio de puentes tipo Pratt Truss. Nuestro análisis se enfocó en el estudio de las fuerzas que sufren los links en los puentes conforme se alteraban distintos parámetros.\\
+
+\subsection{Conclusiones del análisis de puentes}
+
+Habiendo hecho los estudios anteriores, podemos concluir que el comportamiento de las estructura es, en general, bastante predecible en cuanto a las fuerzas ejercidas en el puente.\\
+
+Alterar la posición o distribución de fuerzas en el puente no exhibe cambios en el comportamiento estructural de las fuerzas; siguen apareciendo los mismos patrones de compresión y tensión que observamos en todos los casos de prueba.\\
+
+Hay dos conclusiones importantes a la hora de considerar los costos asociados a un puente que debe cubrir un cierto \textit{span}:
+
+\begin{itemize}
+\item Al fraccionar un puente en más secciones no observamos que necesariamente se produzcan mejoras en el máximo valor absoluto de alguna fuerza del puente. Si bien esto amerita más estudio, se puede generalizar que, para la ecuación de costo provista por la cátedra, es preferible minimizar la cantidad de links dentro de un parámetro razonable.
+\item La cantidad de fuerzas cerca del máximo valor absoluto es reducida. En la práctica esto se puede traducir a que se podría, en la realidad, experimentar con materiales de mayor integridad estructural para las juntas críticas horizontales, y otros de menor costo para las fuerzas diagonales y verticales (con la excepción de las diagonales extremas, que soportan el peso del puente).
+\item Los comportamientos de fuerzas en relación a aumentos de fuerzas para cambios de dimensiones y cargas suelen exhibir una naturaleza lineal. Es decir, observamos que duplicar alguno de los parámetros del puente estudiados (por ejemplo, peso total, \textit{span} o $n$) incrementarán las fuerzas internas en un factor lineal. Esto quiere decir que es improbable, dados los casos de estudio, que existan otros casos patológicos donde el comportamiento del puente sea muy distinto.
+\end{itemize}
+
+Respecto al código que resuelve el problema, encontramos que las soluciones que generaban sufren de una cierta inestabilidad numérica en comparación al método de resolución de \textit{NumPy}, que internamente realiza una descomposición $P * L * U$ de la matriz e invoca métodos extremadamete refinados de librerias \textit{BLAS} con décadas de investigación. No obstante, nos llama la atención que la imprecisión es significativa (a lo sumo $1\%$) si bien la implementación es una copia directa de métodos propuestos por Burden.
+
+\subsection{Conclusiones de la heurística}
+
+La heurística presentada tiene un par de ventajas considerables: tiene una implementación simple con funcionamiento fácil de verificar y terminación clara, al particionar el problema de optimización hasta llegar a un caso base. Además, su tiempo de ejecución es extremadamente rápido.\\
+
+No obstante, encontramos que la misma sufre de ciertas desventajas:\\
+
+\begin{itemize}
+\item La heurística solo puede elegir, para cada subproblema, entre el costo de un puente de longitud total o la solución para los dos subproblemas, particionados por la mitad de secciones del problema. Esto acota el espacio de solución posible y omite muchas soluciones potencialmente buenas.
+\item El hecho de que las particiones de subproblemas están aisladas implica que no se pueden contemplar optimizaciones que deberia analizar ambas partes del subproblema en conjunto. Esto genera casos patológicos que serian fácilmente resolubles analizando subproblemas de otras formas, o usando heurísticas que analicen el puente en su totalidad.
+\end{itemize}
+
+\subsection{Trabajo futuro}
+Proponemos el siguiente trabajo futuro basado en los resultados, conclusiones y experiencias obtenidas a lo largo del desarrollo de este trabajo:
+
+\begin{itemize}
+\item Optimizar la implementación. Si bien en términos de almacenamiento la matriz esparsa resulta una buena elección, las triangulación por eliminación gaussian tiene una variedad enorme de posibles implementaciones más rápidas y más precisas.
+\item Analizar los efector de la altura del puente. Si bien analizar $span$ para cargas fijas se puede considerar equivalente, un estudio más detallado del mismo nos podria haber dado resultados incluso más conclusivos cómo evolucionan los costos y fuerzas del puente.
+\item Comparar el puente Pratt Truss a otros puentes Truss. La literatura menciona una variedad enorme de puentes Truss, todos con distintas ventajas y desventajas, y algunos contemplados para ciertos perfiles de fuerzas y materiales disponibles.
+\item Explorar la heurística más a fondo. A simple vista un eje para refinar la misma podría consistir en estudiar distintas formas de particionar los subproblemas y comparar los respectivos costos. Esto incrementaría el \textit{runtime} del problema, pero probablemente mejoraria muchísimo el resultado sin tener que recurrir a otros métodos más complejos.
+\end{itemize}
